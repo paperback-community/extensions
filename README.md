@@ -1,0 +1,2 @@
+# extensions
+Paperback extensions registry.
