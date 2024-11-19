@@ -1,0 +1,12 @@
+{
+	"buildTime": "",
+	"builtWith": {
+		"toolchain": "",
+		"types": ""
+	},
+	"repository": {
+		"name": "Paperback Community Extensions",
+		"description": "All extensions provided by Paperback Community in one repository."
+	},
+	"sources": []
+}
