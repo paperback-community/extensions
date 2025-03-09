@@ -1855,7 +1855,7 @@ var source = (() => {
       exports.InputRow = InputRow;
       exports.ToggleRow = ToggleRow2;
       exports.SelectRow = SelectRow;
-      exports.ButtonRow = ButtonRow;
+      exports.ButtonRow = ButtonRow2;
       exports.NavigationRow = NavigationRow;
       exports.OAuthButtonRow = OAuthButtonRow;
       exports.DeferredItem = DeferredItem;
@@ -1871,7 +1871,7 @@ var source = (() => {
       function SelectRow(id, props) {
         return { ...props, id, type: "selectRow", isHidden: props.isHidden ?? false };
       }
-      function ButtonRow(id, props) {
+      function ButtonRow2(id, props) {
         return { ...props, id, type: "buttonRow", isHidden: props.isHidden ?? false };
       }
       function NavigationRow(id, props) {
@@ -16934,14 +16934,14 @@ var source = (() => {
   // src/generic/MangaStreamHelper.ts
   init_buffer();
   function getIncludedTagBySection(section, tags) {
-    return (tags?.find((x) => x.startsWith(`${section}:`))?.replace(`${section}:`, "") ?? "").replace(" ", "+");
+    return (tags?.find((x) => x.startsWith(`${section}_`))?.replace(`${section}_`, "") ?? "").replace(" ", "+");
   }
   function getFilterTagsBySection(section, tags, included, supportsExclusion = false) {
     if (!included && !supportsExclusion) {
       return [];
     }
-    return tags?.filter((x) => x.startsWith(`${section}:`)).map((x) => {
-      let id = x.replace(`${section}:`, "");
+    return tags?.filter((x) => x.startsWith(`${section}_`)).map((x) => {
+      let id = x.replace(`${section}_`, "");
       if (!included) {
         id = encodeURI(`-${id}`);
       }
@@ -16992,6 +16992,9 @@ var source = (() => {
   function setUsePostIds(value) {
     Application.setState(value.toString(), "postIds");
   }
+  function clearTags() {
+    Application.setState(void 0, "tags");
+  }
   var MangaStreamSettings = class extends import_types3.Form {
     name;
     constructor(name) {
@@ -17000,7 +17003,7 @@ var source = (() => {
     }
     getSections() {
       return [
-        (0, import_types3.Section)(`${this.name} Settings`, [
+        (0, import_types3.Section)(`${this.name} Settings`.replaceAll(" ", ""), [
           (0, import_types3.ToggleRow)("postIds", {
             title: "Use Post IDs",
             value: getUsePostIds(),
@@ -17013,11 +17016,37 @@ var source = (() => {
             title: "",
             subtitle: "Enabling will make the source slower, but more reliable!\nCHANGING THIS OPTION WILL ERASE YOUR READING PROGRESS FOR THIS SOURCE!"
           })
+        ]),
+        (0, import_types3.Section)("second", [
+          (0, import_types3.ButtonRow)("clearTags", {
+            title: "Clear Cached Search Tags",
+            onSelect: Application.Selector(
+              this,
+              "tagsChange"
+            )
+          }),
+          (0, import_types3.ButtonRow)("resetState", {
+            title: "Reset All State",
+            onSelect: Application.Selector(
+              this,
+              "resetState"
+            )
+          }),
+          (0, import_types3.LabelRow)("resetStateLabel", {
+            title: "",
+            subtitle: "Clicking this will reset all state for this extension. Do not click unless you know what you are doing."
+          })
         ])
       ];
     }
     async usePostIdsChange(value) {
       setUsePostIds(value);
+    }
+    async tagsChange() {
+      clearTags();
+    }
+    async resetState() {
+      Application.resetAllState();
     }
   };
 
@@ -17220,7 +17249,7 @@ var source = (() => {
         }
         for (const tag of $2("li", sectionDropdown).toArray()) {
           const title = $2("label", tag).text().trim();
-          const id = `${tagSections[i].title}:${$2("input", tag).attr("value")}`;
+          const id = `${tagSections[i].title}_${$2("input", tag).attr("value")}`;
           if (!id || !title) {
             continue;
           }
@@ -17757,7 +17786,7 @@ var source = (() => {
   var pbconfig_default = {
     name: "Astra Scans",
     description: "Extension that pulls content from astrascans.org.",
-    version: "1.0.0-alpha.1",
+    version: "1.0.0-alpha.2",
     icon: "icon.png",
     language: "en",
     contentRating: import_types5.ContentRating.MATURE,
