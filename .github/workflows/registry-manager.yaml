@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Manage Registry
-        uses: paperback-community/registry-manager@v0.1.0
+        uses: paperback-community/registry-manager@v0.2.0
         with:
           github-token: ${{ secrets.REGISTRY_MANAGER }}
           repository: ${{ github.event.client_payload.repository }}
