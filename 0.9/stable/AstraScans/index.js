@@ -17784,7 +17784,7 @@ var source = (() => {
   var pbconfig_default = {
     name: "Astra Scans",
     description: "Extension that pulls content from astrascans.org.",
-    version: "1.0.0-alpha.3",
+    version: "1.0.0-alpha.4",
     icon: "icon.png",
     language: "en",
     contentRating: import_types5.ContentRating.EVERYONE,
@@ -17803,6 +17803,7 @@ var source = (() => {
   var AstraScansExt = class extends MangaStreamGeneric {
     domain = DOMAIN_NAME;
     name = pbconfig_default.name;
+    directoryPath = "series";
     configureSections() {
       this.latestUpdatesSection.selectorFunc = ($2) => $2("div.bsx", $2("h2:contains(Latest Update)")?.parent()?.next());
     }

@@ -17784,7 +17784,7 @@ var source = (() => {
   var pbconfig_default = {
     name: "Thunderscans",
     description: "Extension that pulls content from en-thunderscans.com.",
-    version: "1.0.0-alpha.4",
+    version: "1.0.0-alpha.5",
     icon: "icon.png",
     language: "en",
     contentRating: import_types5.ContentRating.EVERYONE,
@@ -17803,6 +17803,7 @@ var source = (() => {
   var ThunderscansExt = class extends MangaStreamGeneric {
     name = pbconfig_default.name;
     domain = DOMAIN_NAME;
+    directoryPath = "comics";
     configureSections() {
       this.latestUpdatesSection.selectorFunc = ($2) => $2("div.bsx", $2("h2:contains(Latest Update)").parent().next());
       this.latestUpdatesSection.subtitleSelectorFunc = ($2, element) => $2(element).find("a.maincl").first().text().trim();
