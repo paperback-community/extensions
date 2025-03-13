@@ -2210,7 +2210,7 @@ var source = (() => {
       init_buffer();
       Object.defineProperty(exports, "__esModule", { value: true });
       exports.URL = void 0;
-      var URL3 = class {
+      var URL2 = class {
         protocol = "";
         username = "";
         password = "";
@@ -2481,7 +2481,7 @@ var source = (() => {
           }
         }
       };
-      exports.URL = URL3;
+      exports.URL = URL2;
     }
   });
 
@@ -17043,6 +17043,72 @@ var source = (() => {
     { id: "52", name: "Yuri" }
   ];
 
+  // src/MangaKatana/MangaKatanaParser.ts
+  init_buffer();
+  var parseTags = ($2) => {
+    const arrayTags = [];
+    for (const tag of $2(".wrap_item").toArray()) {
+      const label = $2("a", tag).first().text().trim();
+      const id = $2("a", tag).attr("href")?.split("genre/")[1] ?? "";
+      if (!id || !label) continue;
+      arrayTags.push({ id, title: label });
+    }
+    const tagSections = [
+      {
+        id: "0",
+        title: "genres",
+        tags: arrayTags.map((genre) => ({
+          id: genre.id.toLowerCase().replace(/\s+/g, "_"),
+          title: genre.title
+        }))
+      }
+    ];
+    return tagSections;
+  };
+  var parseSearch = ($2) => {
+    const mangas = [];
+    const collectedIds = [];
+    if ($2('meta[property="og:url"]').attr("content")?.includes("/manga/")) {
+      const title = $2("h1.heading").first().text().trim() ?? "";
+      let id = $2("meta[property$=url]").attr("content")?.split("/")?.pop() ?? "";
+      const image = $2("div.media div.cover img").attr("src") ?? "";
+      id = decodeURIComponent(id).replace(/[^\w@.]/g, "_").trim();
+      if (!id || !title || collectedIds.includes(id)) return [];
+      mangas.push({
+        imageUrl: image,
+        title,
+        mangaId: id,
+        subtitle: void 0
+      });
+      collectedIds.push(id);
+    } else {
+      for (const manga of $2("div.item", "#book_list").toArray()) {
+        const title = $2(".title a", manga).text().trim();
+        let id = $2("a", manga).attr("href")?.split("/").pop() ?? "";
+        const image = $2("img", manga).attr("src") ?? "";
+        const subtitle = $2(".chapter", manga).first().text().trim();
+        id = decodeURIComponent(id).replace(/[^\w@.]/g, "_").trim();
+        if (!id || !title || collectedIds.includes(id)) continue;
+        mangas.push({
+          imageUrl: image,
+          title,
+          mangaId: id,
+          subtitle
+        });
+        collectedIds.push(id);
+      }
+    }
+    return mangas;
+  };
+  var isLastPage = ($2) => {
+    let isLast = true;
+    const hasNext = Boolean(
+      $2("a.next.page-numbers", "ul.uk-pagination").text()
+    );
+    if (hasNext) isLast = false;
+    return isLast;
+  };
+
   // src/MangaKatana/main.ts
   var DOMAIN_NAME = "https://mangakatana.com/";
   var CloudflareError = class extends Error {
@@ -17310,125 +17376,97 @@ var source = (() => {
       });
       return filters2;
     }
-    // Populates search
+    async getSearchTags() {
+      const request = {
+        url: `${DOMAIN_NAME}/genres`,
+        method: "GET"
+      };
+      const $2 = await this.fetchCheerio(request);
+      return parseTags($2);
+    }
+    // Add this property to the class
+    currentSearchQuery = "";
+    searchInProgress = false;
     async getSearchResults(query, metadata) {
       const page = metadata?.page ?? 1;
-      if (query.title && query.title.length < 3) {
+      if (query.title && query.title.length === 1) {
         return { items: [], metadata: void 0 };
       }
-      let searchUrl;
-      const selectedGenres = query.filters?.find((f) => f.id === "genres")?.value;
-      const isGenreOnlySearch = selectedGenres && Object.keys(selectedGenres).length > 0 && !query.title;
-      if (isGenreOnlySearch) {
-        searchUrl = new URLBuilder(DOMAIN_NAME).addPath("manga").addPath("page").addPath(String(page));
-        const includedGenreIds = Object.entries(selectedGenres).filter(([, inclusion]) => inclusion === "included").map(([id]) => id);
+      this.currentSearchQuery = query.title || "";
+      let request;
+      if (query.title) {
+        request = {
+          url: new URLBuilder(DOMAIN_NAME).addPath("page").addPath(String(page)).addQuery("search", encodeURIComponent(query.title)).addQuery("search_by", "book_name").build(),
+          method: "GET"
+        };
+      } else {
+        const genreFilter = query.filters?.find((f) => f.id === "genres");
+        const genreValue = genreFilter?.value;
+        const includedGenreIds = Object.entries(genreValue || {}).filter(([, value]) => value === "included").map(([id]) => id);
         const includedGenreValues = includedGenreIds.map((id) => {
           const genreOption = genreOptions.find(
             (option) => option.id === id
           );
-          return genreOption ? genreOption.value.toLowerCase().replace(/ /g, "_") : null;
-        }).filter((value) => value !== null);
+          return genreOption ? genreOption.value.toLowerCase().replace(/ /g, "_") : "";
+        }).filter(Boolean);
         const includeValue = includedGenreValues.join("_");
-        searchUrl.addQuery("filter", "1").addQuery("include", includeValue).addQuery("include_mode", "and").addQuery("bookmark_opts", "off").addQuery("chapters", "1");
-      } else {
-        searchUrl = new URLBuilder(DOMAIN_NAME).addPath("page").addPath(String(page));
-        if (query.title) {
-          searchUrl.addQuery("search", encodeURIComponent(query.title));
-        }
-        if (selectedGenres) {
-          Object.entries(selectedGenres).forEach(
-            ([genreId, inclusion]) => {
-              const prefix = inclusion === "excluded" ? "-" : "";
-              searchUrl.addQuery("genres[]", `${prefix}${genreId}`);
-            }
-          );
-        }
+        request = {
+          url: new URLBuilder(DOMAIN_NAME).addPath("genres").addPath("page").addPath(String(page)).addQuery("filter", "1").addQuery("include", includeValue).addQuery("include_mode", "and").addQuery("bookmark_opts", "off").addQuery("chapters", "1").build(),
+          method: "GET"
+        };
       }
-      const MAX_RETRIES = 3;
+      const MAX_RETRIES = 20;
       let retryCount = 0;
       while (retryCount < MAX_RETRIES) {
         try {
-          const request = {
-            url: searchUrl.build(),
-            method: "GET"
-          };
-          const [response, data2] = await Application.scheduleRequest(request);
-          this.checkCloudflareStatus(response.status);
-          const $2 = load(
-            Application.arrayBufferToUTF8String(data2)
+          this.searchInProgress = true;
+          const $2 = await this.fetchCheerio(request);
+          const manga = parseSearch($2);
+          if (query.title && query.title.length > 1 && manga.length === 0 && retryCount < MAX_RETRIES - 1) {
+            if (this.currentSearchQuery !== query.title) {
+              console.log(
+                "Query changed during search, aborting retry"
+              );
+              return { items: [], metadata: void 0 };
+            }
+            retryCount++;
+            console.log(
+              `Search returned no results, retrying (${retryCount}/${MAX_RETRIES})`
+            );
+            await new Promise(
+              (resolve) => setTimeout(resolve, 1e3 * retryCount)
+            );
+            continue;
+          }
+          this.searchInProgress = false;
+          const nextPageMeta = !isLastPage($2) ? { page: page + 1 } : void 0;
+          console.log(
+            `This is the nextPageMeta: ${JSON.stringify(nextPageMeta)}`
           );
-          const finalUrl = new import_types2.URL(response.url);
-          if (finalUrl.pathname.startsWith("/manga/")) {
-            const mangaId = finalUrl.pathname.split("/manga/")[1].split("/")[0];
-            const title = $2("h1.heading").text().trim();
-            const image = $2(".cover img").attr("src") || "";
-            const latestChapterText = $2(".update_time").first().text().trim();
-            const latestChapterMatch = latestChapterText.match(/Chapter (\d+)/);
-            const subtitle = latestChapterMatch ? `Ch. ${latestChapterMatch[1]}` : void 0;
-            if (mangaId && title && image) {
-              return {
-                items: [
-                  {
-                    mangaId: decodeURIComponent(mangaId).replace(/[^\w@.]/g, "_").trim(),
-                    imageUrl: image,
-                    title,
-                    subtitle,
-                    metadata: void 0
-                  }
-                ],
-                metadata: void 0
-              };
-            }
-          }
-          const searchResults = [];
-          $2(".item").each((_, element) => {
-            const unit = $2(element);
-            const titleLink = unit.find("h3.title a").first();
-            const title = titleLink.text().trim();
-            const href = titleLink.attr("href") || "";
-            const mangaIdParts = href.split("/manga/")[1]?.split("/");
-            let mangaId = mangaIdParts ? mangaIdParts[0] : "";
-            if (!mangaId) return;
-            mangaId = decodeURIComponent(mangaId).replace(/[^\w@.]/g, "_").trim();
-            const image = unit.find(".wrap_img img").attr("src") || "";
-            const latestChapterText = unit.find("h3.title span").text().trim();
-            const latestChapterMatch = latestChapterText.match(/Chapter (\d+)/);
-            const subtitle = latestChapterMatch ? `Ch. ${latestChapterMatch[1]}` : void 0;
-            if (title && mangaId && image) {
-              searchResults.push({
-                mangaId,
-                imageUrl: image,
-                title,
-                subtitle,
-                metadata: void 0
-              });
-            }
-          });
-          const nextPageHref = $2("a.next.page-numbers").attr("href");
-          let nextPage;
-          if (nextPageHref) {
-            const pageMatch = nextPageHref.match(/page\/(\d+)/);
-            nextPage = pageMatch ? parseInt(pageMatch[1], 10) : page + 1;
-          }
           return {
-            items: searchResults,
-            metadata: nextPage ? { page: nextPage } : void 0
+            items: manga,
+            metadata: nextPageMeta
           };
         } catch (error) {
           console.error(
-            `Search attempt ${retryCount + 1} failed:`,
+            `Search error (attempt ${retryCount + 1}):`,
             error
           );
-          retryCount++;
-          if (retryCount < MAX_RETRIES) {
-            const RETRY_DELAY = 1e3 * retryCount;
-            await new Promise(
-              (resolve) => setTimeout(resolve, RETRY_DELAY)
+          if (this.currentSearchQuery !== query.title) {
+            console.log(
+              "Query changed during search, aborting retry after error"
             );
+            this.searchInProgress = false;
+            return { items: [], metadata: void 0 };
           }
+          retryCount++;
         }
       }
-      return { items: [], metadata: void 0 };
+      this.searchInProgress = false;
+      return {
+        items: [],
+        metadata: void 0
+      };
     }
     // Populates the chapter list
     async getChapters(sourceManga) {
