@@ -16979,7 +16979,7 @@ var source = (() => {
         synopsis: description[1] ? description[1] : description.join(""),
         primaryTitle,
         secondaryTitles,
-        contentRating: import_types2.ContentRating.MATURE,
+        contentRating: import_types2.ContentRating.EVERYONE,
         status,
         author,
         tagGroups: tagSections,
@@ -17060,7 +17060,8 @@ var source = (() => {
         mangaId: id,
         title: Application.decodeHTMLEntities(title),
         imageUrl: image,
-        subtitle: Application.decodeHTMLEntities(subtitle)
+        subtitle: Application.decodeHTMLEntities(subtitle),
+        contentRating: import_types2.ContentRating.EVERYONE
       });
       collectedIds.push(id);
     }
@@ -17095,7 +17096,8 @@ var source = (() => {
         mangaId: id,
         title: Application.decodeHTMLEntities(title),
         imageUrl: image,
-        subtitle: Application.decodeHTMLEntities(subtitle)
+        subtitle: Application.decodeHTMLEntities(subtitle),
+        contentRating: import_types2.ContentRating.EVERYONE
       });
     }
     return mangas;

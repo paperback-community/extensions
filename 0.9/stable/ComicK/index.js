@@ -3194,10 +3194,7 @@ var source = (() => {
       synopsis: comic.desc ? Application.decodeHTMLEntities(comic.desc) : "",
       primaryTitle: titles[0],
       secondaryTitles: titles,
-      contentRating: parseContentRating(
-        comic.content_rating,
-        comic.matureContent
-      ),
+      contentRating: parseContentRating(comic.content_rating),
       status: parseComicStatus(comic.status),
       author: authors.map((author) => author.name).join(","),
       artist: artists.map((artists2) => artists2.name).join(","),
@@ -3260,21 +3257,23 @@ var source = (() => {
     ];
   }
   function parseSearch(data) {
-    return data.filter((manga) => manga.hid).map((manga) => ({
-      imageUrl: manga.cover_url,
-      title: Application.decodeHTMLEntities(manga.title),
-      mangaId: manga.hid,
+    return data.filter((comic) => comic.hid).map((comic) => ({
+      imageUrl: comic.cover_url,
+      title: Application.decodeHTMLEntities(comic.title),
+      mangaId: comic.hid,
       subtitle: Application.decodeHTMLEntities(
-        manga.last_chapter ? `Chapter ${manga.last_chapter}` : manga.title
-      )
+        comic.last_chapter ? `Chapter ${comic.last_chapter}` : comic.title
+      ),
+      contentRating: parseContentRating(comic.content_rating)
     }));
   }
   function parseDiscoverSection(data, type) {
-    return data.filter((manga) => manga.hid).map((manga) => {
+    return data.filter((comic) => comic.hid).map((comic) => {
       const baseItem = {
-        imageUrl: manga.cover_url,
-        title: Application.decodeHTMLEntities(manga.title),
-        mangaId: manga.hid
+        imageUrl: comic.cover_url,
+        title: Application.decodeHTMLEntities(comic.title),
+        mangaId: comic.hid,
+        contentRating: parseContentRating(comic.content_rating)
       };
       switch (type) {
         case import_types.DiscoverSectionType.featured:
@@ -3285,7 +3284,7 @@ var source = (() => {
           return {
             ...baseItem,
             subtitle: Application.decodeHTMLEntities(
-              manga.last_chapter ? `Chapter ${manga.last_chapter}` : manga.title
+              comic.last_chapter ? `Chapter ${comic.last_chapter}` : comic.title
             ),
             type: "simpleCarouselItem"
           };
@@ -3333,11 +3332,11 @@ var source = (() => {
       { id: "cn", value: "Manhua" }
     ];
   }
-  function parseContentRating(content_rating, matureContent) {
+  function parseContentRating(content_rating) {
     if (content_rating === "erotica") {
       return import_types.ContentRating.ADULT;
     }
-    if (content_rating === "safe" && matureContent) {
+    if (content_rating === "suggestive") {
       return import_types.ContentRating.MATURE;
     }
     return import_types.ContentRating.EVERYONE;
