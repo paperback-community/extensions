@@ -2921,12 +2921,12 @@ var source = (() => {
         SourceIntents2[SourceIntents2["SETTINGS_UI"] = 32] = "SETTINGS_UI";
         SourceIntents2[SourceIntents2["MANGA_SEARCH"] = 64] = "MANGA_SEARCH";
       })(SourceIntents || (exports.SourceIntents = SourceIntents = {}));
-      var ContentRating2;
-      (function(ContentRating3) {
-        ContentRating3["EVERYONE"] = "SAFE";
-        ContentRating3["MATURE"] = "MATURE";
-        ContentRating3["ADULT"] = "ADULT";
-      })(ContentRating2 || (exports.ContentRating = ContentRating2 = {}));
+      var ContentRating3;
+      (function(ContentRating4) {
+        ContentRating4["EVERYONE"] = "SAFE";
+        ContentRating4["MATURE"] = "MATURE";
+        ContentRating4["ADULT"] = "ADULT";
+      })(ContentRating3 || (exports.ContentRating = ContentRating3 = {}));
     }
   });
 
@@ -3384,7 +3384,8 @@ var source = (() => {
           mangaId,
           title,
           subtitle: author,
-          imageUrl: image
+          imageUrl: image,
+          contentRating: import_types3.ContentRating.EVERYONE
         });
       }
       return { items: titles };
@@ -3419,7 +3420,8 @@ var source = (() => {
           mangaId,
           title,
           subtitle: author,
-          imageUrl: image
+          imageUrl: image,
+          contentRating: import_types3.ContentRating.EVERYONE
         });
       }
       return { items: titles };
@@ -3454,7 +3456,8 @@ var source = (() => {
           mangaId,
           title,
           subtitle: author,
-          imageUrl: image
+          imageUrl: image,
+          contentRating: import_types3.ContentRating.EVERYONE
         });
       }
       return { items: titles };
@@ -3498,7 +3501,8 @@ var source = (() => {
           mangaId,
           title: title2,
           subtitle: author,
-          imageUrl: image
+          imageUrl: image,
+          contentRating: import_types3.ContentRating.EVERYONE
         });
       }
       return { items: titles, metadata };
