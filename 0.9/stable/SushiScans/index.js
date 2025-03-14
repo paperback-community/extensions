@@ -3029,10 +3029,10 @@ var source = (() => {
     }
   });
 
-  // src/NightScans/main.ts
+  // src/SushiScans/main.ts
   var main_exports = {};
   __export(main_exports, {
-    NightScans: () => NightScans
+    SushiScans: () => SushiScans
   });
   init_buffer();
 
@@ -17780,18 +17780,18 @@ var source = (() => {
     }
   };
 
-  // src/NightScans/pbconfig.ts
+  // src/SushiScans/pbconfig.ts
   init_buffer();
   var import_types5 = __toESM(require_lib(), 1);
   var pbconfig_default = {
-    name: "Night Scans",
-    description: "Extension that pulls content from nightsup.net.",
-    version: "1.0.0-alpha.4",
+    name: "SushiScans",
+    description: "Extension that pulls content from sushiscan.net.",
+    version: "1.0.0-alpha.1",
     icon: "icon.png",
     language: "en",
     contentRating: import_types5.ContentRating.EVERYONE,
     badges: [],
-    capabilities: import_types5.SourceIntents.MANGA_CHAPTERS | import_types5.SourceIntents.DISCOVER_SECIONS | import_types5.SourceIntents.SETTINGS_UI | import_types5.SourceIntents.MANGA_SEARCH,
+    capabilities: import_types5.SourceIntents.MANGA_CHAPTERS | import_types5.SourceIntents.DISCOVER_SECIONS | import_types5.SourceIntents.SETTINGS_UI | import_types5.SourceIntents.MANGA_SEARCH | import_types5.SourceIntents.CLOUDFLARE_BYPASS_REQUIRED,
     developers: [
       {
         name: "nyzzik",
@@ -17800,18 +17800,45 @@ var source = (() => {
     ]
   };
 
-  // src/NightScans/main.ts
-  var DOMAIN_NAME = "https://nightsup.net";
-  var NightScansExt = class extends MangaStreamGeneric {
+  // src/SushiScans/main.ts
+  var DOMAIN_NAME = "https://sushiscan.net";
+  var SushiScansExt = class extends MangaStreamGeneric {
     name = pbconfig_default.name;
     domain = DOMAIN_NAME;
     contentRating = pbconfig_default.contentRating;
+    directoryPath = "catalogue";
+    language = "\u{1F1EB}\u{1F1F7}";
+    mangaTagSelectorBox = "div.seriestugenre";
+    mangaSelectorArtist = "Dessinateur";
+    mangaSelectorAuthor = "Auteur";
+    mangaSelectorStatus = "Statut";
+    mangaStatusTypes = {
+      ONGOING: "En Cours",
+      COMPLETED: "Termin\xE9"
+    };
+    dateMonths = {
+      january: "janvier",
+      february: "f\xE9vrier",
+      march: "mars",
+      april: "avril",
+      may: "mai",
+      june: "juin",
+      july: "juillet",
+      august: "ao\xFBt",
+      september: "septembre",
+      october: "octobre",
+      november: "novembre",
+      december: "d\xE9cembre"
+    };
     configureSections() {
-      this.latestUpdatesSection.selectorFunc = ($2) => $2("div.bsx", $2("h2:contains(Latest Update)").parent().next());
-      this.latestUpdatesSection.subtitleSelectorFunc = ($2, element) => $2(element).find("a.maincl").first().text().trim();
+      this.featuredSection.selectorFunc = ($2) => $2(
+        "div.bsx",
+        $2("h2:contains(Populaire Aujourd'hui)")?.parent()?.next()
+      );
+      this.latestUpdatesSection.selectorFunc = ($2) => $2("div.bsx", $2("h2:contains(Derni\xE8res Sorties)")?.parent()?.next());
     }
   };
-  var NightScans = new NightScansExt();
+  var SushiScans = new SushiScansExt();
   return __toCommonJS(main_exports);
 })();
 /*! Bundled license information:

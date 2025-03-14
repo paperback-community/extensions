@@ -3029,10 +3029,10 @@ var source = (() => {
     }
   });
 
-  // src/NightScans/main.ts
+  // src/ManhwaX/main.ts
   var main_exports = {};
   __export(main_exports, {
-    NightScans: () => NightScans
+    ManhwaX: () => ManhwaX
   });
   init_buffer();
 
@@ -17780,18 +17780,20 @@ var source = (() => {
     }
   };
 
-  // src/NightScans/pbconfig.ts
+  // src/ManhwaX/pbconfig.ts
   init_buffer();
   var import_types5 = __toESM(require_lib(), 1);
   var pbconfig_default = {
-    name: "Night Scans",
-    description: "Extension that pulls content from nightsup.net.",
-    version: "1.0.0-alpha.4",
-    icon: "icon.png",
+    name: "ManhwaX",
+    description: "Extension that pulls content from manhwax.top.",
+    version: "1.0.0-alpha.1",
+    icon: "icon.jpg",
     language: "en",
-    contentRating: import_types5.ContentRating.EVERYONE,
-    badges: [],
-    capabilities: import_types5.SourceIntents.MANGA_CHAPTERS | import_types5.SourceIntents.DISCOVER_SECIONS | import_types5.SourceIntents.SETTINGS_UI | import_types5.SourceIntents.MANGA_SEARCH,
+    contentRating: import_types5.ContentRating.ADULT,
+    badges: [
+      { label: "18+", textColor: "#000000", backgroundColor: "#FF0000" }
+    ],
+    capabilities: import_types5.SourceIntents.MANGA_CHAPTERS | import_types5.SourceIntents.DISCOVER_SECIONS | import_types5.SourceIntents.SETTINGS_UI | import_types5.SourceIntents.MANGA_SEARCH | import_types5.SourceIntents.CLOUDFLARE_BYPASS_REQUIRED,
     developers: [
       {
         name: "nyzzik",
@@ -17800,18 +17802,19 @@ var source = (() => {
     ]
   };
 
-  // src/NightScans/main.ts
-  var DOMAIN_NAME = "https://nightsup.net";
-  var NightScansExt = class extends MangaStreamGeneric {
-    name = pbconfig_default.name;
+  // src/ManhwaX/main.ts
+  var DOMAIN_NAME = "https://manhwax.top/";
+  var ManhwaXExt = class extends MangaStreamGeneric {
     domain = DOMAIN_NAME;
+    name = pbconfig_default.name;
     contentRating = pbconfig_default.contentRating;
     configureSections() {
-      this.latestUpdatesSection.selectorFunc = ($2) => $2("div.bsx", $2("h2:contains(Latest Update)").parent().next());
-      this.latestUpdatesSection.subtitleSelectorFunc = ($2, element) => $2(element).find("a.maincl").first().text().trim();
+      this.featuredSection.enabled = false;
+      this.latestUpdatesSection.selectorFunc = ($2) => $2("div.bsx", $2("h2:contains(Latest Update)")?.parent()?.next());
+      this.latestUpdatesSection.subtitleSelectorFunc = ($2, element) => $2("div.epxs", element).first().text().trim();
     }
   };
-  var NightScans = new NightScansExt();
+  var ManhwaX = new ManhwaXExt();
   return __toCommonJS(main_exports);
 })();
 /*! Bundled license information:

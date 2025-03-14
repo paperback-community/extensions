@@ -3029,10 +3029,10 @@ var source = (() => {
     }
   });
 
-  // src/NightScans/main.ts
+  // src/MythicScans/main.ts
   var main_exports = {};
   __export(main_exports, {
-    NightScans: () => NightScans
+    MythicScans: () => MythicScans
   });
   init_buffer();
 
@@ -17780,13 +17780,13 @@ var source = (() => {
     }
   };
 
-  // src/NightScans/pbconfig.ts
+  // src/MythicScans/pbconfig.ts
   init_buffer();
   var import_types5 = __toESM(require_lib(), 1);
   var pbconfig_default = {
-    name: "Night Scans",
-    description: "Extension that pulls content from nightsup.net.",
-    version: "1.0.0-alpha.4",
+    name: "Mythic Scans",
+    description: "Extension that pulls content from mythicscans.net.",
+    version: "1.0.0-alpha.1",
     icon: "icon.png",
     language: "en",
     contentRating: import_types5.ContentRating.EVERYONE,
@@ -17800,18 +17800,17 @@ var source = (() => {
     ]
   };
 
-  // src/NightScans/main.ts
-  var DOMAIN_NAME = "https://nightsup.net";
-  var NightScansExt = class extends MangaStreamGeneric {
+  // src/MythicScans/main.ts
+  var DOMAIN_NAME = "https://mythicscans.net/";
+  var MythicScansExt = class extends MangaStreamGeneric {
     name = pbconfig_default.name;
     domain = DOMAIN_NAME;
     contentRating = pbconfig_default.contentRating;
     configureSections() {
       this.latestUpdatesSection.selectorFunc = ($2) => $2("div.bsx", $2("h2:contains(Latest Update)").parent().next());
-      this.latestUpdatesSection.subtitleSelectorFunc = ($2, element) => $2(element).find("a.maincl").first().text().trim();
     }
   };
-  var NightScans = new NightScansExt();
+  var MythicScans = new MythicScansExt();
   return __toCommonJS(main_exports);
 })();
 /*! Bundled license information:

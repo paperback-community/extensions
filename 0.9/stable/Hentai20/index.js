@@ -3029,10 +3029,10 @@ var source = (() => {
     }
   });
 
-  // src/NightScans/main.ts
+  // src/Hentai20/main.ts
   var main_exports = {};
   __export(main_exports, {
-    NightScans: () => NightScans
+    Hentai20: () => Hentai20
   });
   init_buffer();
 
@@ -17780,18 +17780,18 @@ var source = (() => {
     }
   };
 
-  // src/NightScans/pbconfig.ts
+  // src/Hentai20/pbconfig.ts
   init_buffer();
   var import_types5 = __toESM(require_lib(), 1);
   var pbconfig_default = {
-    name: "Night Scans",
-    description: "Extension that pulls content from nightsup.net.",
-    version: "1.0.0-alpha.4",
-    icon: "icon.png",
+    name: "Hentai20",
+    description: "Extension that pulls content from hentai20.io.",
+    version: "1.0.0-alpha.1",
+    icon: "icon.jpg",
     language: "en",
-    contentRating: import_types5.ContentRating.EVERYONE,
+    contentRating: import_types5.ContentRating.ADULT,
     badges: [],
-    capabilities: import_types5.SourceIntents.MANGA_CHAPTERS | import_types5.SourceIntents.DISCOVER_SECIONS | import_types5.SourceIntents.SETTINGS_UI | import_types5.SourceIntents.MANGA_SEARCH,
+    capabilities: import_types5.SourceIntents.MANGA_CHAPTERS | import_types5.SourceIntents.DISCOVER_SECIONS | import_types5.SourceIntents.SETTINGS_UI | import_types5.SourceIntents.MANGA_SEARCH | import_types5.SourceIntents.CLOUDFLARE_BYPASS_REQUIRED,
     developers: [
       {
         name: "nyzzik",
@@ -17800,18 +17800,14 @@ var source = (() => {
     ]
   };
 
-  // src/NightScans/main.ts
-  var DOMAIN_NAME = "https://nightsup.net";
-  var NightScansExt = class extends MangaStreamGeneric {
-    name = pbconfig_default.name;
+  // src/Hentai20/main.ts
+  var DOMAIN_NAME = "https://hentai20.io";
+  var Hentai20Extension = class extends MangaStreamGeneric {
     domain = DOMAIN_NAME;
+    name = pbconfig_default.name;
     contentRating = pbconfig_default.contentRating;
-    configureSections() {
-      this.latestUpdatesSection.selectorFunc = ($2) => $2("div.bsx", $2("h2:contains(Latest Update)").parent().next());
-      this.latestUpdatesSection.subtitleSelectorFunc = ($2, element) => $2(element).find("a.maincl").first().text().trim();
-    }
   };
-  var NightScans = new NightScansExt();
+  var Hentai20 = new Hentai20Extension();
   return __toCommonJS(main_exports);
 })();
 /*! Bundled license information:

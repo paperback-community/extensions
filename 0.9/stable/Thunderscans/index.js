@@ -17133,7 +17133,7 @@ var source = (() => {
           author: author == "" ? "Unknown" : author,
           artist: artist == "" ? "Unknown" : artist,
           synopsis: description,
-          contentRating: source.defaultContentRating,
+          contentRating: source.contentRating,
           tagGroups: tagSections
         }
       };
@@ -17150,7 +17150,7 @@ var source = (() => {
           $2("span.chapterdate", chapter).text().trim(),
           source
         );
-        const id = chapter.attribs["data-num"] ?? "";
+        const id = (chapter.attribs["data-num"] ?? "").replaceAll(" ", "-");
         const chapterNumberRegex = id.match(/(\d+\.?\d?)+/);
         let chapterNumber = 0;
         if (chapterNumberRegex && chapterNumberRegex[1]) {
@@ -17185,7 +17185,8 @@ var source = (() => {
         );
       }
       return chapters.map((chapter) => {
-        if (chapter.sortingIndex) chapter.sortingIndex += chapters.length;
+        if (chapter.sortingIndex != void 0)
+          chapter.sortingIndex += chapters.length;
         return chapter;
       });
     }
@@ -17405,7 +17406,6 @@ var source = (() => {
   // src/generic/MangaStream.ts
   var MangaStreamGeneric = class {
     directoryPath = "manga";
-    defaultContentRating = import_types4.ContentRating.MATURE;
     parser = new MangaStreamParser();
     requestManager;
     language = "\u{1F1EC}\u{1F1E7}";
@@ -17440,7 +17440,8 @@ var source = (() => {
       selectorFunc: ($2) => $2("div.bsx", $2("h2:contains(Popular Today)")?.parent()?.next()),
       titleSelectorFunc: ($2, element) => $2("a", element).attr("title") ?? "",
       subtitleSelectorFunc: ($2, element) => $2("div.epxs", element).first().text().trim(),
-      itemType: "featuredCarouselItem"
+      itemType: "featuredCarouselItem",
+      enabled: true
     };
     latestUpdatesSection = {
       id: "latest_updates",
@@ -17449,7 +17450,8 @@ var source = (() => {
       selectorFunc: ($2) => $2("div.uta", $2("h2:contains(Latest Update)")?.parent()?.next()),
       titleSelectorFunc: ($2, element) => $2("a", element).attr("title") ?? "",
       subtitleSelectorFunc: ($2, element) => $2("li > a, div.epxs", $2("div.luf, div.bigor", element)).first().text().trim(),
-      itemType: "chapterUpdatesCarouselItem"
+      itemType: "chapterUpdatesCarouselItem",
+      enabled: true
     };
     discoverSections = [
       this.featuredSection,
@@ -17631,7 +17633,7 @@ var source = (() => {
       return this.parser.parseChapterDetails(_$, chap);
     }
     async getDiscoverSections() {
-      return this.discoverSections.map((x) => {
+      return this.discoverSections.filter((x) => x.enabled).map((x) => {
         return {
           id: x.id,
           subtitle: x.subtitle,
@@ -17784,7 +17786,7 @@ var source = (() => {
   var pbconfig_default = {
     name: "Thunderscans",
     description: "Extension that pulls content from en-thunderscans.com.",
-    version: "1.0.0-alpha.5",
+    version: "1.0.0-alpha.6",
     icon: "icon.png",
     language: "en",
     contentRating: import_types5.ContentRating.EVERYONE,
@@ -17803,6 +17805,7 @@ var source = (() => {
   var ThunderscansExt = class extends MangaStreamGeneric {
     name = pbconfig_default.name;
     domain = DOMAIN_NAME;
+    contentRating = pbconfig_default.contentRating;
     directoryPath = "comics";
     configureSections() {
       this.latestUpdatesSection.selectorFunc = ($2) => $2("div.bsx", $2("h2:contains(Latest Update)").parent().next());
