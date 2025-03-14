@@ -21805,10 +21805,10 @@ var source = (() => {
       };
     }
     parseIdToPaperback(id) {
-      return id.replaceAll("/", "--SLASH--").replaceAll("?", "--QUESTION--").replaceAll("=", "--EQUALS--").replaceAll("&", "--AND--");
+      return id.replaceAll("/", "--SLASH--").replaceAll("?", "--QUESTION--").replaceAll("=", "--EQUALS--").replaceAll("&", "--AND--").replaceAll("%", "--PERCENT--");
     }
     parseIdToSource(id) {
-      return id.replaceAll("--SLASH--", "/").replaceAll("--QUESTION--", "?").replaceAll("--EQUALS--", "=").replaceAll("--AND--", "&");
+      return id.replaceAll("--SLASH--", "/").replaceAll("--QUESTION--", "?").replaceAll("--EQUALS--", "=").replaceAll("--AND--", "&").replaceAll("--PERCENT--", "%");
     }
     languageFromId(id) {
       return id.split("--SLASH--")[0];
