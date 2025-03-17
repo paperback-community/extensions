@@ -15726,13 +15726,13 @@ var source = (() => {
     return result;
   }
 
-  // node_modules/cheerio/node_modules/htmlparser2/lib/esm/index.js
+  // node_modules/htmlparser2/lib/esm/index.js
   init_buffer();
 
-  // node_modules/cheerio/node_modules/htmlparser2/lib/esm/Parser.js
+  // node_modules/htmlparser2/lib/esm/Parser.js
   init_buffer();
 
-  // node_modules/cheerio/node_modules/htmlparser2/lib/esm/Tokenizer.js
+  // node_modules/htmlparser2/lib/esm/Tokenizer.js
   init_buffer();
   var CharCodes2;
   (function(CharCodes3) {
@@ -16420,7 +16420,7 @@ var source = (() => {
     }
   };
 
-  // node_modules/cheerio/node_modules/htmlparser2/lib/esm/Parser.js
+  // node_modules/htmlparser2/lib/esm/Parser.js
   var formTags = /* @__PURE__ */ new Set([
     "input",
     "option",
@@ -16868,7 +16868,7 @@ var source = (() => {
     }
   };
 
-  // node_modules/cheerio/node_modules/htmlparser2/lib/esm/index.js
+  // node_modules/htmlparser2/lib/esm/index.js
   function parseDocument(data2, options) {
     const handler = new DomHandler(void 0, options);
     new Parser2(handler, options).end(data2);
@@ -17087,9 +17087,13 @@ var source = (() => {
         const unit = $2(element);
         const anchor = unit.find("a").first();
         const href = anchor.attr("href") || "";
-        const mangaId = href.match(/\/serie\/(.+?)\/?$/)?.[1] || "";
+        let mangaId = href.match(/\/serie\/(.+?)\/?$/)?.[1] || "";
         const image = unit.find("img").attr("data-cfsrc") || "";
         const title = unit.find(".txt span").text().trim();
+        mangaId = decodeURIComponent(mangaId).replace(
+          /[^a-zA-Z0-9_\-@]/g,
+          ""
+        );
         if (mangaId && title && image && !collectedIds.includes(mangaId)) {
           collectedIds.push(mangaId);
           items.push(
@@ -17126,9 +17130,13 @@ var source = (() => {
         const unit = $2(element);
         const titleLink = unit.find("h3.h5 a").first();
         const href = titleLink.attr("href") || "";
-        const mangaId = href.match(/\/serie\/(.+?)\/?$/)?.[1] || "";
+        let mangaId = href.match(/\/serie\/(.+?)\/?$/)?.[1] || "";
         const image = unit.find("img").attr("src") || unit.find("img").attr("data-src") || "";
         const title = titleLink.text().trim();
+        mangaId = decodeURIComponent(mangaId).replace(
+          /[^a-zA-Z0-9_\-@]/g,
+          ""
+        );
         const chapterItem = unit.find(".list-chapter .chapter-item").first();
         const subtitle = chapterItem.find(".chapter a").text().trim();
         if (mangaId && title && image && !collectedIds.includes(mangaId)) {
@@ -17179,9 +17187,13 @@ var source = (() => {
         const unit = $2(element);
         const titleLink = unit.find("h3.h5 a").first();
         const href = titleLink.attr("href") || "";
-        const mangaId = href.match(/\/serie\/(.+?)\/?$/)?.[1] || "";
+        let mangaId = href.match(/\/serie\/(.+?)\/?$/)?.[1] || "";
         const image = unit.find("img").attr("src") || unit.find("img").attr("data-src") || "";
         const title = titleLink.text().trim();
+        mangaId = decodeURIComponent(mangaId).replace(
+          /[^a-zA-Z0-9_\-@]/g,
+          ""
+        );
         const chapterItem = unit.find(".list-chapter .chapter-item").first();
         const subtitle = chapterItem.find(".chapter a").text().trim();
         if (mangaId && title && image && !collectedIds.includes(mangaId)) {
@@ -17273,6 +17285,7 @@ var source = (() => {
       urlBuilder.addQuery("author", "");
       urlBuilder.addQuery("artist", "");
       urlBuilder.addQuery("adult", "");
+      console.log(`The URL is: ${urlBuilder.build()}`);
       const searchUrl = urlBuilder.build();
       const request = { url: searchUrl, method: "GET" };
       const $2 = await this.fetchCheerio(request);
@@ -17282,9 +17295,13 @@ var source = (() => {
         const unit = $2(element);
         const titleLink = unit.find("h3.h5 a").first();
         const href = titleLink.attr("href") || "";
-        const mangaId = href.split("/serie/")[1]?.replace(/\/$/, "") || "";
+        let mangaId = href.split("/serie/")[1]?.replace(/\/$/, "") || "";
         const image = unit.find("img").attr("src") || unit.find("img").attr("data-src") || "";
         const title = titleLink.text().trim();
+        mangaId = decodeURIComponent(mangaId).replace(
+          /[^a-zA-Z0-9_\-@]/g,
+          ""
+        );
         if (mangaId && title) {
           searchResults.push({
             mangaId,
