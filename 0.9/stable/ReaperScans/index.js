@@ -3098,6 +3098,30 @@ var source = (() => {
     }
   };
 
+  // src/ReaperScans/pbconfig.ts
+  init_buffer();
+  var import_types = __toESM(require_lib(), 1);
+  var pbconfig_default = {
+    name: "ReaperScans",
+    description: "Extension that pulls content from reaperscans.com.",
+    version: "1.0.0-alpha.2",
+    icon: "icon.png",
+    language: "en",
+    contentRating: import_types.ContentRating.EVERYONE,
+    capabilities: [
+      import_types.SourceIntents.MANGA_CHAPTERS,
+      import_types.SourceIntents.DISCOVER_SECIONS,
+      import_types.SourceIntents.MANGA_SEARCH
+    ],
+    badges: [],
+    developers: [
+      {
+        name: "nyzzik",
+        github: "https://github.com/nyzzik"
+      }
+    ]
+  };
+
   // src/ReaperScans/ReaperConfig.ts
   init_buffer();
   var RS_DOMAIN = "https://reaperscans.com";
@@ -3106,8 +3130,8 @@ var source = (() => {
 
   // src/ReaperScans/ReaperInterceptor.ts
   init_buffer();
-  var import_types = __toESM(require_lib(), 1);
-  var ReaperInterceptor = class extends import_types.PaperbackInterceptor {
+  var import_types2 = __toESM(require_lib(), 1);
+  var ReaperInterceptor = class extends import_types2.PaperbackInterceptor {
     async interceptRequest(request) {
       request.headers = {
         ...request.headers,
@@ -16965,30 +16989,6 @@ var source = (() => {
   var parse5 = getParse((content, options, isDocument2, context) => options._useHtmlParser2 ? parseDocument(content, options) : parseWithParse5(content, options, isDocument2, context));
   var load = getLoad(parse5, (dom, options) => options._useHtmlParser2 ? esm_default(dom, options) : renderWithParse5(dom));
 
-  // src/ReaperScans/pbconfig.ts
-  init_buffer();
-  var import_types3 = __toESM(require_lib(), 1);
-  var pbconfig_default = {
-    name: "ReaperScans",
-    description: "Extension that pulls content from reaperscans.com.",
-    version: "1.0.0-alpha.1",
-    icon: "icon.png",
-    language: "en",
-    contentRating: import_types3.ContentRating.EVERYONE,
-    capabilities: [
-      import_types3.SourceIntents.MANGA_CHAPTERS,
-      import_types3.SourceIntents.DISCOVER_SECIONS,
-      import_types3.SourceIntents.MANGA_SEARCH
-    ],
-    badges: [],
-    developers: [
-      {
-        name: "nyzzik",
-        github: "https://github.com/nyzzik"
-      }
-    ]
-  };
-
   // src/ReaperScans/ReaperUtils.ts
   init_buffer();
   var checkImage = (img) => {
@@ -17079,11 +17079,13 @@ var source = (() => {
   var parseNewSection = (queryResult) => {
     const items = [];
     for (const item of queryResult.data) {
+      if (item.series_type != "Comic") continue;
       items.push({
         type: "simpleCarouselItem",
         mangaId: item.series_slug,
         imageUrl: item.thumbnail,
-        title: item.title
+        title: item.title,
+        contentRating: pbconfig_default.contentRating
       });
     }
     return items;
@@ -17093,13 +17095,15 @@ var source = (() => {
     for (const item of queryResult.data) {
       const latestChapterSlug = item.free_chapters && item.free_chapters.length > 0 ? item.free_chapters[0].chapter_slug : " ";
       const latestChapterName = item.free_chapters && item.free_chapters.length > 0 ? item.free_chapters[0].chapter_name : " ";
+      if (item.series_type != "Comic") continue;
       items.push({
         type: "chapterUpdatesCarouselItem",
         mangaId: item.series_slug,
         imageUrl: checkImage(item.thumbnail),
         title: item.title,
         chapterId: latestChapterSlug,
-        subtitle: latestChapterName
+        subtitle: latestChapterName,
+        contentRating: pbconfig_default.contentRating
       });
     }
     return items;
@@ -17111,7 +17115,8 @@ var source = (() => {
         type: "featuredCarouselItem",
         mangaId: item.series_slug,
         imageUrl: checkImage(item.thumbnail),
-        title: item.title
+        title: item.title,
+        contentRating: pbconfig_default.contentRating
       });
     }
     return items;
@@ -17163,7 +17168,8 @@ var source = (() => {
           mangaId: item.series_slug,
           title: item.title ?? "",
           imageUrl: checkImage(item.thumbnail),
-          subtitle: latestChapter
+          subtitle: latestChapter,
+          contentRating: pbconfig_default.contentRating
         });
       }
       return {
@@ -17258,7 +17264,7 @@ var source = (() => {
         case import_types4.DiscoverSectionType.simpleCarousel:
           {
             const request = {
-              url: new URLBuilder2(RS_API_DOMAIN).addPath("query").addQuery("series_type", "Comic").addQuery("perPage", "15").addQuery("order", "desc").addQuery("orderBy", "created_at").addQuery("page", page.toString()).build(),
+              url: new URLBuilder2(RS_API_DOMAIN).addPath("query").addQuery("perPage", "15").addQuery("order", "desc").addQuery("orderBy", "created_at").addQuery("page", page.toString()).build(),
               method: "GET",
               headers: {
                 "user-agent": await Application.getDefaultUserAgent(),
@@ -17276,7 +17282,7 @@ var source = (() => {
         case import_types4.DiscoverSectionType.chapterUpdates:
           {
             const request = {
-              url: new URLBuilder2(RS_API_DOMAIN).addPath("query").addQuery("series_type", "Comic").addQuery("perPage", "15").addQuery("order", "desc").addQuery("orderBy", "updated_at").addQuery("page", page).build(),
+              url: new URLBuilder2(RS_API_DOMAIN).addPath("query").addQuery("perPage", "15").addQuery("order", "desc").addQuery("orderBy", "updated_at").addQuery("page", page).build(),
               method: "GET",
               headers: {
                 "user-agent": await Application.getDefaultUserAgent(),

@@ -2909,24 +2909,24 @@ var source = (() => {
       init_buffer();
       Object.defineProperty(exports, "__esModule", { value: true });
       exports.ContentRating = exports.SourceIntents = void 0;
-      var SourceIntents;
-      (function(SourceIntents2) {
-        SourceIntents2[SourceIntents2["MANGA_CHAPTERS"] = 1] = "MANGA_CHAPTERS";
-        SourceIntents2[SourceIntents2["MANGA_TRACKING"] = 2] = "MANGA_TRACKING";
-        SourceIntents2[SourceIntents2["MANGA_PROGRESS"] = 2] = "MANGA_PROGRESS";
-        SourceIntents2[SourceIntents2["HOMEPAGE_SECTIONS"] = 4] = "HOMEPAGE_SECTIONS";
-        SourceIntents2[SourceIntents2["DISCOVER_SECIONS"] = 4] = "DISCOVER_SECIONS";
-        SourceIntents2[SourceIntents2["COLLECTION_MANAGEMENT"] = 8] = "COLLECTION_MANAGEMENT";
-        SourceIntents2[SourceIntents2["CLOUDFLARE_BYPASS_REQUIRED"] = 16] = "CLOUDFLARE_BYPASS_REQUIRED";
-        SourceIntents2[SourceIntents2["SETTINGS_UI"] = 32] = "SETTINGS_UI";
-        SourceIntents2[SourceIntents2["MANGA_SEARCH"] = 64] = "MANGA_SEARCH";
-      })(SourceIntents || (exports.SourceIntents = SourceIntents = {}));
-      var ContentRating2;
-      (function(ContentRating3) {
-        ContentRating3["EVERYONE"] = "SAFE";
-        ContentRating3["MATURE"] = "MATURE";
-        ContentRating3["ADULT"] = "ADULT";
-      })(ContentRating2 || (exports.ContentRating = ContentRating2 = {}));
+      var SourceIntents2;
+      (function(SourceIntents3) {
+        SourceIntents3[SourceIntents3["MANGA_CHAPTERS"] = 1] = "MANGA_CHAPTERS";
+        SourceIntents3[SourceIntents3["MANGA_TRACKING"] = 2] = "MANGA_TRACKING";
+        SourceIntents3[SourceIntents3["MANGA_PROGRESS"] = 2] = "MANGA_PROGRESS";
+        SourceIntents3[SourceIntents3["HOMEPAGE_SECTIONS"] = 4] = "HOMEPAGE_SECTIONS";
+        SourceIntents3[SourceIntents3["DISCOVER_SECIONS"] = 4] = "DISCOVER_SECIONS";
+        SourceIntents3[SourceIntents3["COLLECTION_MANAGEMENT"] = 8] = "COLLECTION_MANAGEMENT";
+        SourceIntents3[SourceIntents3["CLOUDFLARE_BYPASS_REQUIRED"] = 16] = "CLOUDFLARE_BYPASS_REQUIRED";
+        SourceIntents3[SourceIntents3["SETTINGS_UI"] = 32] = "SETTINGS_UI";
+        SourceIntents3[SourceIntents3["MANGA_SEARCH"] = 64] = "MANGA_SEARCH";
+      })(SourceIntents2 || (exports.SourceIntents = SourceIntents2 = {}));
+      var ContentRating3;
+      (function(ContentRating4) {
+        ContentRating4["EVERYONE"] = "SAFE";
+        ContentRating4["MATURE"] = "MATURE";
+        ContentRating4["ADULT"] = "ADULT";
+      })(ContentRating3 || (exports.ContentRating = ContentRating3 = {}));
     }
   });
 
@@ -3036,7 +3036,7 @@ var source = (() => {
     AsuraScansExtension: () => AsuraScansExtension
   });
   init_buffer();
-  var import_types5 = __toESM(require_lib(), 1);
+  var import_types6 = __toESM(require_lib(), 1);
 
   // node_modules/cheerio/dist/browser/index.js
   init_buffer();
@@ -16970,7 +16970,7 @@ var source = (() => {
 
   // src/AsuraScans/AsuraParser.ts
   init_buffer();
-  var import_types4 = __toESM(require_lib(), 1);
+  var import_types5 = __toESM(require_lib(), 1);
 
   // src/AsuraScans/AsuraSettings.ts
   init_buffer();
@@ -17069,6 +17069,31 @@ var source = (() => {
     return cleanId;
   }
 
+  // src/AsuraScans/pbconfig.ts
+  init_buffer();
+  var import_types4 = __toESM(require_lib(), 1);
+  var pbconfig_default = {
+    name: "Asura Scans",
+    description: "Extension that pulls content from asuracomic.net.",
+    version: "1.0.0-alpha.6",
+    icon: "icon.png",
+    language: "en",
+    contentRating: import_types4.ContentRating.EVERYONE,
+    capabilities: [
+      import_types4.SourceIntents.MANGA_CHAPTERS,
+      import_types4.SourceIntents.DISCOVER_SECIONS,
+      import_types4.SourceIntents.SETTINGS_UI,
+      import_types4.SourceIntents.MANGA_SEARCH
+    ],
+    badges: [],
+    developers: [
+      {
+        name: "nyzzik",
+        github: "https://github.com/nyzzik"
+      }
+    ]
+  };
+
   // src/AsuraScans/AsuraParser.ts
   var parseMangaDetails = async ($2, mangaId) => {
     const title = $2(".text-center > .text-xl.font-bold").text().trim() ?? "";
@@ -17124,7 +17149,7 @@ var source = (() => {
         tagGroups: tagSections,
         synopsis: load(description).text(),
         thumbnailUrl: image,
-        contentRating: import_types4.ContentRating.EVERYONE,
+        contentRating: import_types5.ContentRating.EVERYONE,
         shareUrl: new URLBuilder(AS_DOMAIN).addPath("series").addPath(mangaId).build()
       }
     };
@@ -17178,7 +17203,8 @@ var source = (() => {
         imageUrl: image,
         title: load(title).text(),
         mangaId: id,
-        type: "featuredCarouselItem"
+        type: "featuredCarouselItem",
+        contentRating: pbconfig_default.contentRating
       });
     }
     return featuredSection_Array;
@@ -17198,7 +17224,8 @@ var source = (() => {
         mangaId: id,
         subtitle,
         chapterId: subtitle.split(" ")[1],
-        type: "chapterUpdatesCarouselItem"
+        type: "chapterUpdatesCarouselItem",
+        contentRating: pbconfig_default.contentRating
       });
     }
     return updateSectionArray;
@@ -17218,7 +17245,8 @@ var source = (() => {
         title: load(title).text(),
         subtitle: load(subtitle).text(),
         mangaId: id,
-        type: "simpleCarouselItem"
+        type: "simpleCarouselItem",
+        contentRating: pbconfig_default.contentRating
       });
     }
     return popularSection_Array;
@@ -17280,7 +17308,8 @@ var source = (() => {
         imageUrl: image,
         title: load(title).text(),
         mangaId: id,
-        subtitle
+        subtitle,
+        contentRating: pbconfig_default.contentRating
       });
       collectedIds.push(id);
     }
@@ -17295,7 +17324,7 @@ var source = (() => {
 
   // src/AsuraScans/main.ts
   var AsuraScansExtension = class {
-    globalRateLimiter = new import_types5.BasicRateLimiter("ratelimiter", {
+    globalRateLimiter = new import_types6.BasicRateLimiter("ratelimiter", {
       numberOfRequests: 10,
       bufferInterval: 0.5,
       ignoreImages: true
@@ -17311,33 +17340,33 @@ var source = (() => {
         {
           id: "featured",
           title: "Featured",
-          type: import_types5.DiscoverSectionType.featured
+          type: import_types6.DiscoverSectionType.featured
         },
         {
           id: "latest_updates",
           title: "Latest Updates",
-          type: import_types5.DiscoverSectionType.chapterUpdates
+          type: import_types6.DiscoverSectionType.chapterUpdates
         },
         {
           id: "popular_today",
           title: "Popular Today",
-          type: import_types5.DiscoverSectionType.simpleCarousel
+          type: import_types6.DiscoverSectionType.simpleCarousel
         },
-        { id: "type", title: "Types", type: import_types5.DiscoverSectionType.genres },
-        { id: "genres", title: "Genres", type: import_types5.DiscoverSectionType.genres },
-        { id: "status", title: "Status", type: import_types5.DiscoverSectionType.genres }
+        { id: "type", title: "Types", type: import_types6.DiscoverSectionType.genres },
+        { id: "genres", title: "Genres", type: import_types6.DiscoverSectionType.genres },
+        { id: "status", title: "Status", type: import_types6.DiscoverSectionType.genres }
       ];
     }
     async getDiscoverSectionItems(section, metadata) {
       let items = [];
       let urlBuilder = new URLBuilder2(AS_DOMAIN);
       const page = metadata?.page ?? 1;
-      if (section.type === import_types5.DiscoverSectionType.chapterUpdates) {
+      if (section.type === import_types6.DiscoverSectionType.chapterUpdates) {
         urlBuilder = urlBuilder.addPath("series");
         urlBuilder = urlBuilder.addQuery("page", page.toString());
       }
       switch (section.type) {
-        case import_types5.DiscoverSectionType.featured: {
+        case import_types6.DiscoverSectionType.featured: {
           const [_, buffer] = await Application.scheduleRequest({
             url: urlBuilder.build(),
             method: "GET"
@@ -17348,7 +17377,7 @@ var source = (() => {
           items = await parseFeaturedSection($2);
           break;
         }
-        case import_types5.DiscoverSectionType.simpleCarousel: {
+        case import_types6.DiscoverSectionType.simpleCarousel: {
           const [_, buffer] = await Application.scheduleRequest({
             url: urlBuilder.build(),
             method: "GET"
@@ -17359,7 +17388,7 @@ var source = (() => {
           items = await parsePopularSection($2);
           break;
         }
-        case import_types5.DiscoverSectionType.chapterUpdates: {
+        case import_types6.DiscoverSectionType.chapterUpdates: {
           const [_, buffer] = await Application.scheduleRequest({
             url: urlBuilder.build(),
             method: "GET"
@@ -17371,7 +17400,7 @@ var source = (() => {
           metadata = !isLastPage($2) ? { page: page + 1 } : void 0;
           break;
         }
-        case import_types5.DiscoverSectionType.genres:
+        case import_types6.DiscoverSectionType.genres:
           if (section.id === "type") {
             items = [];
             const tags = await this.getSearchTags();
