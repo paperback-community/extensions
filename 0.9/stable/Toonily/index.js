@@ -24100,7 +24100,7 @@ Can fix the homepage "request page not found" error!`
      * 0: (POST) Form data https://domain.com/wp-admin/admin-ajax.php
      * 1: (POST) Alternative Ajax page (https://domain.com/manga/manga-slug/ajax/chapters)
      * 2: (POST) Manga page (https://domain.com/manga/manga-slug)
-     * 3: (GET) Manga page (https://domain.com/manga/manga-slug)
+     * 3: (GET) (DEFAULT) Manga page (https://domain.com/manga/manga-slug)
      */
     chapterEndpoint;
     /**
@@ -24528,7 +24528,7 @@ Can fix the homepage "request page not found" error!`
   var pbconfig_default = {
     name: "Toonily",
     description: "Extension that pulls content from toonily.com.",
-    version: "1.0.0-alpha.2",
+    version: "1.0.0-alpha.3",
     icon: "icon.png",
     language: "\u{1F1EC}\u{1F1E7}",
     contentRating: import_types6.ContentRating.ADULT,
@@ -24558,7 +24558,7 @@ Can fix the homepage "request page not found" error!`
     }
     constructSearchRequest(page, query) {
       const urlBuilder = new import_types7.URL(this.domain).addPathComponent(
-        `search${query?.title ? encodeURIComponent(this.sanitizeQuery(query?.title ?? "")) + "/" : ""}/page/${page.toString()}`
+        `search/${query?.title ? this.sanitizeQuery(query.title).replaceAll(" ", "-") + "/" : ""}page/${page.toString()}`
       ).setQueryItem("post_type", "wp-manga");
       const genreFilters = Object.keys(
         query.filters.find((x) => x.id === "genres")?.value ?? {}

@@ -24099,7 +24099,7 @@ Can fix the homepage "request page not found" error!`
      * 0: (POST) Form data https://domain.com/wp-admin/admin-ajax.php
      * 1: (POST) Alternative Ajax page (https://domain.com/manga/manga-slug/ajax/chapters)
      * 2: (POST) Manga page (https://domain.com/manga/manga-slug)
-     * 3: (GET) Manga page (https://domain.com/manga/manga-slug)
+     * 3: (GET) (DEFAULT) Manga page (https://domain.com/manga/manga-slug)
      */
     chapterEndpoint;
     /**
@@ -24527,7 +24527,7 @@ Can fix the homepage "request page not found" error!`
   var pbconfig_default = {
     name: "NovelMic",
     description: "Extension that pulls content from novelmic.com.",
-    version: "1.0.0-alpha.2",
+    version: "1.0.0-alpha.3",
     icon: "icon.png",
     language: "\u{1F1EC}\u{1F1E7}",
     contentRating: import_types6.ContentRating.MATURE,
@@ -24550,7 +24550,8 @@ Can fix the homepage "request page not found" error!`
         name: pbconfig_default.name,
         contentRating: pbconfig_default.contentRating,
         language: pbconfig_default.language,
-        usePostIds: true
+        usePostIds: true,
+        chapterEndpoint: 0
       });
     }
   };
