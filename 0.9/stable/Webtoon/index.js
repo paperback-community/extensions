@@ -21667,9 +21667,7 @@ var source = (() => {
     }
     parseChapter(elem, sourceManga) {
       return {
-        chapterId: this.parseIdToPaperback(
-          elem.find("a").attr("href")?.replace(this.MOBILE_URL + "/", "") ?? ""
-        ),
+        chapterId: elem.find("a").attr("href")?.replace(this.MOBILE_URL + "/", "") ?? "",
         sourceManga,
         langCode: this.languageFromId(sourceManga.mangaId),
         title: elem.find("a > div.row > div.info > p.sub_title > span.ellipsis").text(),
@@ -21738,9 +21736,7 @@ var source = (() => {
       };
     }
     parseCanvasFromRecommendedElement(elem) {
-      const mangaId = this.parseIdToPaperback(
-        elem.find("a").attr("href")?.replace(this.BASE_URL + "/", "") ?? ""
-      );
+      const mangaId = elem.find("a").attr("href")?.replace(this.BASE_URL + "/", "") ?? "";
       const subtitle = "Canvas" + (this.languages.length > 1 ? " - " + this.languageTitleFromId(mangaId) : "");
       console.log("subtitle " + subtitle);
       return {
@@ -21756,9 +21752,7 @@ var source = (() => {
       };
     }
     parseMangaFromElement(elem) {
-      const mangaId = this.parseIdToPaperback(
-        elem.attr("href")?.replace(this.BASE_URL + "/", "") ?? ""
-      );
+      const mangaId = elem.attr("href")?.replace(this.BASE_URL + "/", "") ?? "";
       const subtitle = this.languages.length > 1 ? this.languageTitleFromId(mangaId) : "";
       console.log("subtitle " + subtitle);
       return {
@@ -21770,9 +21764,7 @@ var source = (() => {
       };
     }
     parseCanvasFromElement(elem) {
-      const mangaId = this.parseIdToPaperback(
-        elem.attr("href")?.replace(this.BASE_URL + "/", "") ?? ""
-      );
+      const mangaId = elem.attr("href")?.replace(this.BASE_URL + "/", "") ?? "";
       const subtitle = "Canvas" + (this.languages.length > 1 ? " - " + this.languageTitleFromId(mangaId) : "");
       console.log("subtitle " + subtitle);
       return {
@@ -21816,14 +21808,8 @@ var source = (() => {
         items: $2("#content > div.card_wrap ul.card_lst li a").toArray().map((elem) => this.parseMangaFromElement($2(elem)))
       };
     }
-    parseIdToPaperback(id) {
-      return id.replaceAll("/", "--SLASH--").replaceAll("?", "--QUESTION--").replaceAll("=", "--EQUALS--").replaceAll("&", "--AND--").replaceAll("%", "--PERCENT--");
-    }
-    parseIdToSource(id) {
-      return id.replaceAll("--SLASH--", "/").replaceAll("--QUESTION--", "?").replaceAll("--EQUALS--", "=").replaceAll("--AND--", "&").replaceAll("--PERCENT--", "%");
-    }
     languageFromId(id) {
-      return id.split("--SLASH--")[0];
+      return id.split("/")[0];
     }
     languageTitleFromId(id) {
       return getLanguagesTitle(this.languageFromId(id));
@@ -21900,7 +21886,7 @@ var source = (() => {
     getMangaDetails(mangaId) {
       return this.ExecRequest(
         {
-          url: `${this.BASE_URL}/${this.parseIdToSource(mangaId)}`
+          url: `${this.BASE_URL}/${mangaId}`
         },
         ($2) => this.parseDetails($2, mangaId)
       );
@@ -21908,7 +21894,7 @@ var source = (() => {
     getChapters(sourceManga) {
       return this.ExecRequest(
         {
-          url: `${this.MOBILE_URL}/${this.parseIdToSource(sourceManga.mangaId)}`,
+          url: `${this.MOBILE_URL}/${sourceManga.mangaId}`,
           headers: { referer: this.MOBILE_URL }
         },
         ($2) => this.parseChaptersList($2, sourceManga)
@@ -21917,7 +21903,7 @@ var source = (() => {
     getChapterDetails(chapter) {
       return this.ExecRequest(
         {
-          url: `${this.BASE_URL}/${this.parseIdToSource(chapter.chapterId)}`
+          url: `${this.BASE_URL}/${chapter.chapterId}`
         },
         ($2) => this.parseChapterDetails($2, chapter)
       );
