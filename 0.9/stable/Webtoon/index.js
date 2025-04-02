@@ -7638,7 +7638,6 @@ var source = (() => {
     { id: "zh-hant" /* CHINESE */, title: "\u4E2D\u6587 (\u7E41\u9AD4)" }
   ];
   var getLanguagesTitle = (language) => {
-    console.log("ici " + language);
     return LanguagesOptions.find((option) => option.id === language)?.title;
   };
   var formatDate = (date, language) => {
@@ -21626,7 +21625,6 @@ var source = (() => {
         this.parseDetailsThumbnail($2),
         detailElement.find("h1").text().trim()
       ];
-      console.log("image: " + image);
       return {
         mangaId,
         mangaInfo: {
@@ -21738,7 +21736,6 @@ var source = (() => {
     parseCanvasFromRecommendedElement(elem) {
       const mangaId = elem.find("a").attr("href")?.replace(this.BASE_URL + "/", "") ?? "";
       const subtitle = "Canvas" + (this.languages.length > 1 ? " - " + this.languageTitleFromId(mangaId) : "");
-      console.log("subtitle " + subtitle);
       return {
         mangaId,
         title: elem.find("p.subj").text(),
@@ -21754,7 +21751,6 @@ var source = (() => {
     parseMangaFromElement(elem) {
       const mangaId = elem.attr("href")?.replace(this.BASE_URL + "/", "") ?? "";
       const subtitle = this.languages.length > 1 ? this.languageTitleFromId(mangaId) : "";
-      console.log("subtitle " + subtitle);
       return {
         mangaId,
         title: elem.find("p.subj").text(),
@@ -21766,7 +21762,6 @@ var source = (() => {
     parseCanvasFromElement(elem) {
       const mangaId = elem.attr("href")?.replace(this.BASE_URL + "/", "") ?? "";
       const subtitle = "Canvas" + (this.languages.length > 1 ? " - " + this.languageTitleFromId(mangaId) : "");
-      console.log("subtitle " + subtitle);
       return {
         mangaId,
         title: elem.find("p.subj").text(),
@@ -22009,9 +22004,6 @@ var source = (() => {
       let result = { items: [] };
       const [languagestr, sectionId] = section.id.split("-_-");
       const language = languagestr;
-      console.log(
-        `get discover section items: ${section.id} ${language} ${sectionId}`
-      );
       switch (sectionId) {
         case "popular":
           result = await this.getPopularTitles(language);
@@ -22045,7 +22037,6 @@ var source = (() => {
       this.languages.forEach((language) => {
         result.push(...this.getLanguageDiscoverSections(language));
       });
-      console.log("result " + JSON.stringify(result));
       return Promise.resolve(result);
     }
     getLanguageDiscoverSections(language) {
