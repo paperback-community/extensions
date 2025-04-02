@@ -24099,7 +24099,7 @@ Can fix the homepage "request page not found" error!`
      * 0: (POST) Form data https://domain.com/wp-admin/admin-ajax.php
      * 1: (POST) Alternative Ajax page (https://domain.com/manga/manga-slug/ajax/chapters)
      * 2: (POST) Manga page (https://domain.com/manga/manga-slug)
-     * 3: (GET) Manga page (https://domain.com/manga/manga-slug)
+     * 3: (GET) (DEFAULT) Manga page (https://domain.com/manga/manga-slug)
      */
     chapterEndpoint;
     /**
@@ -24525,6 +24525,20 @@ Can fix the homepage "request page not found" error!`
   init_buffer();
   var MangaReadOrgParser = class extends MadaraParser {
     parseDate = (dateString) => {
+      dateString = dateString.toLowerCase();
+      const firstNumber = Number(dateString.match(/\d+/g)?.[0]);
+      if (dateString.includes("les than an hour") || dateString.includes("now"))
+        return new Date(Date.now());
+      if (dateString.includes("day"))
+        return new Date(
+          Date.now() - (firstNumber ?? 1) * 24 * 60 * 60 * 1e3
+        );
+      if (dateString.includes("hour"))
+        return new Date(Date.now() - firstNumber * 60 * 60 * 1e3);
+      if (dateString.includes("min"))
+        return new Date(Date.now() - firstNumber * 60 * 1e3);
+      if (dateString.includes("sec"))
+        return new Date(Date.now() - firstNumber * 1e3);
       const [day, month, year] = dateString.split(".").map(Number);
       return new Date(year, month - 1, day);
     };
@@ -24536,7 +24550,7 @@ Can fix the homepage "request page not found" error!`
   var pbconfig_default = {
     name: "MangaReadOrg",
     description: "Extension that pulls content from mangaread.org.",
-    version: "1.0.0-alpha.2",
+    version: "1.0.0-alpha.3",
     icon: "icon.png",
     language: "\u{1F1EC}\u{1F1E7}",
     contentRating: import_types6.ContentRating.EVERYONE,
