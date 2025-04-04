@@ -24525,20 +24525,6 @@ Can fix the homepage "request page not found" error!`
   init_buffer();
   var MangaReadOrgParser = class extends MadaraParser {
     parseDate = (dateString) => {
-      dateString = dateString.toLowerCase();
-      const firstNumber = Number(dateString.match(/\d+/g)?.[0]);
-      if (dateString.includes("les than an hour") || dateString.includes("now"))
-        return new Date(Date.now());
-      if (dateString.includes("day"))
-        return new Date(
-          Date.now() - (firstNumber ?? 1) * 24 * 60 * 60 * 1e3
-        );
-      if (dateString.includes("hour"))
-        return new Date(Date.now() - firstNumber * 60 * 60 * 1e3);
-      if (dateString.includes("min"))
-        return new Date(Date.now() - firstNumber * 60 * 1e3);
-      if (dateString.includes("sec"))
-        return new Date(Date.now() - firstNumber * 1e3);
       const [day, month, year] = dateString.split(".").map(Number);
       return new Date(year, month - 1, day);
     };
@@ -24550,7 +24536,7 @@ Can fix the homepage "request page not found" error!`
   var pbconfig_default = {
     name: "MangaReadOrg",
     description: "Extension that pulls content from mangaread.org.",
-    version: "1.0.0-alpha.4",
+    version: "1.0.0-alpha.5",
     icon: "icon.png",
     language: "\u{1F1EC}\u{1F1E7}",
     contentRating: import_types6.ContentRating.EVERYONE,
@@ -24574,8 +24560,7 @@ Can fix the homepage "request page not found" error!`
         contentRating: pbconfig_default.contentRating,
         language: pbconfig_default.language,
         usePostIds: true,
-        parser: new MangaReadOrgParser(),
-        chapterEndpoint: 1
+        parser: new MangaReadOrgParser()
       });
     }
   };
