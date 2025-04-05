@@ -23783,8 +23783,10 @@ Can fix the homepage "request page not found" error!`
     }
     parseChapterList($2, sourceManga, source) {
       const chapters = [];
-      let sortingIndex = 0;
-      for (const obj of $2("li.wp-manga-chapter  ").toArray()) {
+      const nodeArray = $2("li.wp-manga-chapter  ").toArray();
+      let nodesProcessed = 0;
+      for (const obj of nodeArray) {
+        const sortingIndex = nodeArray.length - nodesProcessed++;
         const id = this.idCleaner($2("a", obj).first().attr("href") ?? "");
         const chapName = $2("a", obj).first().text().trim() ?? "";
         const chapNumRegex = id.match(
@@ -23807,7 +23809,7 @@ Can fix the homepage "request page not found" error!`
         if (!mangaTime.getTime()) mangaTime = /* @__PURE__ */ new Date();
         if (!id || typeof id === "undefined" || id === "#") {
           console.log(
-            `Could not parse out ID when getting chapters for postId:${sourceManga.mangaId} parsedId: ${id}`
+            `Could not parse out ID when getting chapters for mangaId:${sourceManga.mangaId} parsedId: ${id}`
           );
           continue;
         }
@@ -23820,19 +23822,8 @@ Can fix the homepage "request page not found" error!`
           publishDate: mangaTime,
           sortingIndex
         });
-        sortingIndex--;
       }
-      if (chapters.length == 0) {
-        throw new Error(
-          `Couldn't find any chapters for mangaId: ${sourceManga.mangaId}!`
-        );
-      }
-      return chapters.map((chapter) => {
-        if (chapter.sortingIndex) {
-          chapter.sortingIndex += chapters.length;
-        }
-        return chapter;
-      });
+      return chapters;
     }
     async parseChapterDetails($2, chapter, selector, source) {
       const pages = [];
@@ -23843,7 +23834,7 @@ Can fix the homepage "request page not found" error!`
         );
         if (!page) {
           console.log(
-            `Could not parse pages for postId:${chapter.sourceManga.mangaId} chapterId:${chapter.chapterId}`
+            `Could not parse pages for mangaId:${chapter.sourceManga.mangaId} chapterId:${chapter.chapterId}`
           );
           continue;
         }
@@ -23866,7 +23857,7 @@ Can fix the homepage "request page not found" error!`
       );
       if (!("chapter_data" in variables) || !("wpmangaprotectornonce" in variables)) {
         throw new Error(
-          `Could not parse page for postId:${chapter.sourceManga.mangaId} chapterId:${chapter.chapterId}. Reason: Lacks sufficient data`
+          `Could not parse page for mangaId:${chapter.sourceManga.mangaId} chapterId:${chapter.chapterId}. Reason: Lacks sufficient data`
         );
       }
       const chapterList = decryptData(
@@ -24099,7 +24090,7 @@ Can fix the homepage "request page not found" error!`
      * 0: (POST) Form data https://domain.com/wp-admin/admin-ajax.php
      * 1: (POST) Alternative Ajax page (https://domain.com/manga/manga-slug/ajax/chapters)
      * 2: (POST) Manga page (https://domain.com/manga/manga-slug)
-     * 3: (GET) Manga page (https://domain.com/manga/manga-slug)
+     * 3: (GET) (DEFAULT) Manga page (https://domain.com/manga/manga-slug)
      */
     chapterEndpoint;
     /**
@@ -24171,11 +24162,7 @@ Can fix the homepage "request page not found" error!`
     }
     async getChapters(sourceManga) {
       let requestConfig;
-      let mangaId = sourceManga.mangaId;
-      if (getUsePostIds(this.usePostIds)) {
-        const postData = await this.convertPostIdToSlug(Number(mangaId));
-        mangaId = postData.slug;
-      }
+      const mangaId = await this.getPostAndSlug(sourceManga.mangaId);
       switch (this.chapterEndpoint) {
         case 0:
           requestConfig = {
@@ -24186,13 +24173,13 @@ Can fix the homepage "request page not found" error!`
             },
             body: {
               action: "manga_get_chapters",
-              manga: getUsePostIds(this.usePostIds) ? mangaId : await this.convertSlugToPostId(mangaId)
+              manga: mangaId.postId
             }
           };
           break;
         case 1:
           requestConfig = {
-            url: `${this.domain}/temp_dirpath/${mangaId}/ajax/chapters`,
+            url: `${this.domain}/temp_dirpath/${mangaId.slug}/ajax/chapters`,
             method: "POST",
             headers: {
               "content-type": "application/x-www-form-urlencoded"
@@ -24201,7 +24188,7 @@ Can fix the homepage "request page not found" error!`
           break;
         case 2:
           requestConfig = {
-            url: `${this.domain}/temp_dirpath/${mangaId}`,
+            url: `${this.domain}/temp_dirpath/${mangaId.slug}`,
             method: "POST",
             headers: {
               "content-type": "application/x-www-form-urlencoded"
@@ -24210,7 +24197,7 @@ Can fix the homepage "request page not found" error!`
           break;
         case 3:
           requestConfig = {
-            url: `${this.domain}/temp_dirpath/${mangaId}`,
+            url: `${this.domain}/temp_dirpath/${mangaId.slug}`,
             method: "GET",
             headers: {
               "content-type": "application/x-www-form-urlencoded"
@@ -24226,15 +24213,10 @@ Can fix the homepage "request page not found" error!`
       return this.parser.parseChapterList($2, sourceManga, this);
     }
     async getChapterDetails(chapter) {
-      const mangaId = chapter.sourceManga.mangaId;
+      const mangaId = await this.getPostAndSlug(chapter.sourceManga.mangaId);
       const chapterId = chapter.chapterId;
       const url = new import_types5.URL(this.domain).addPathComponent("temp_dirpath");
-      if (getUsePostIds(this.usePostIds)) {
-        const slugData = await this.convertPostIdToSlug(Number(mangaId));
-        url.addPathComponent(slugData.slug);
-      } else {
-        url.addPathComponent(mangaId);
-      }
+      url.addPathComponent(mangaId.slug);
       url.addPathComponent(chapterId);
       if (this.useListParameter) {
         url.setQueryItem("style", "list");
@@ -24355,9 +24337,8 @@ Can fix the homepage "request page not found" error!`
       const items = [];
       for (const result of results) {
         if (getUsePostIds(this.usePostIds)) {
-          const postId = await this.slugToPostId(result.slug);
           items.push({
-            mangaId: postId,
+            mangaId: (await this.getPostAndSlug(result.slug)).postId,
             imageUrl: result.image,
             title: result.title,
             subtitle: result.subtitle
@@ -24408,20 +24389,35 @@ Can fix the homepage "request page not found" error!`
     sanitizeQuery(query) {
       return query.replace(/'[^ ]*/g, "").replace(/\.+/g, "").replace(/["']/g, "").trim();
     }
-    async slugToPostId(slug) {
-      const postIdState = Application.getState(slug);
-      if (!postIdState || postIdState == null) {
-        const postId2 = await this.convertSlugToPostId(slug);
-        const existingMappedSlug = await Application.getState(postId2);
-        if (existingMappedSlug != "") {
-          Application.setState(slug, "");
+    async getPostAndSlug(mangaId) {
+      const isPostId = !isNaN(Number(mangaId));
+      let postId = 0;
+      let slug = "";
+      if (!isPostId) {
+        if (getUsePostIds()) {
+          const slugInput = mangaId.toString();
+          postId = Application.getState(slugInput);
+          if (!postId) {
+            postId = await this.convertSlugToPostId(slugInput);
+          }
+          slug = slugInput;
         }
-        Application.setState(postId2, slug);
-        Application.setState(slug, postId2);
+      } else {
+        const postIdInput = Number(mangaId);
+        slug = Application.getState(postIdInput.toString());
+        if (!slug) {
+          slug = (await this.convertPostIdToSlug(postIdInput)).slug;
+        }
+        postId = postIdInput;
       }
-      const postId = Application.getState(slug);
-      if (!postId) throw new Error(`Unable to fetch postId for slug:${slug}`);
-      return postId;
+      if (getUsePostIds()) {
+        Application.setState(postId.toString(), slug);
+        Application.setState(slug, postId.toString());
+      }
+      return {
+        postId: postId.toString(),
+        slug
+      };
     }
     async convertPostIdToSlug(postId) {
       const [, buffer] = await Application.scheduleRequest({
@@ -24429,17 +24425,22 @@ Can fix the homepage "request page not found" error!`
         method: "GET"
       });
       const $2 = load(Application.arrayBufferToUTF8String(buffer));
-      let parseSlug;
-      parseSlug = $2('meta[property="og:url"]').attr("content") ?? "";
-      if (!parseSlug.includes(this.domain)) {
-        parseSlug = $2('link[rel="canonical"]').attr("href") ?? "";
+      let parseURL;
+      parseURL = $2('meta[property="og:url"]').attr("content") ?? "";
+      if (!parseURL.includes(this.domain)) {
+        parseURL = $2('link[rel="canonical"]').attr("href") ?? "";
       }
-      if (!parseSlug || !parseSlug.includes(this.domain)) {
-        throw new Error("Unable to parse slug!");
+      if (!parseURL.includes(this.domain)) {
+        throw new Error(`Unable to parse slug for postId: ${postId}!`);
       }
-      const parseSlugArray = parseSlug.replace(/\/$/, "").split("/");
-      const slug = parseSlugArray.slice(-1).pop() ?? "";
-      const path = parseSlugArray.slice(-2).shift() ?? "";
+      const URLSplit = parseURL.replace(/\/$/, "").split("/");
+      const slug = URLSplit.slice(-1).pop() ?? "";
+      const path = URLSplit.slice(-2).shift() ?? "";
+      if (!slug) {
+        throw new Error(
+          `Unable to fetch slug for this item! postId: ${postId}`
+        );
+      }
       return { path, slug };
     }
     async convertSlugToPostId(slug) {
@@ -24447,34 +24448,41 @@ Can fix the homepage "request page not found" error!`
         url: `${this.domain}/temp_dirpath/${slug}`,
         method: "HEAD"
       });
-      let postId;
       const postIdRegex = headResponse?.headers?.["link"]?.match(/\?p=(\d+)/);
-      if (postIdRegex && postIdRegex[1]) postId = postIdRegex[1];
-      if (postId && !isNaN(Number(postId))) {
-        return postId;
+      const postIdMatch = postIdRegex?.[1] ? Number(postIdRegex[1]) : NaN;
+      if (!isNaN(postIdMatch)) {
+        return postIdMatch;
       }
       const [, buffer] = await Application.scheduleRequest({
         url: `${this.domain}/temp_dirpath/${slug}`,
         method: "GET"
       });
       const $2 = load(Application.arrayBufferToUTF8String(buffer));
-      postId = $2('link[rel="shortlink"]')?.attr("href")?.split("/?p=")[1];
-      if (isNaN(Number(postId))) {
-        postId = $2("a.wp-manga-action-button").attr("data-post");
-      }
-      if (isNaN(Number(postId))) {
-        const page = $2.root().html();
-        const match = page?.match(/manga_id["']?\s*:\s*["']?(\d+)/);
-        if (match && match[1]) {
-          postId = match[1]?.trim();
+      const postId_1 = $2('link[rel="shortlink"]')?.attr("href")?.split("/?p=")[1];
+      if (postId_1) {
+        const postId = Number(postId_1);
+        if (!isNaN(postId)) {
+          return postId;
         }
       }
-      if (!postId || isNaN(Number(postId))) {
-        throw new Error(
-          `Unable to fetch numeric postId for this item! (slug:${slug})`
-        );
+      const postId_2 = $2("a.wp-manga-action-button")?.attr("data-post");
+      if (postId_2) {
+        const postId = Number(postId_2);
+        if (!isNaN(postId)) {
+          return postId;
+        }
       }
-      return postId;
+      const page = $2.root().html();
+      const match = page?.match(/manga_id["']?\s*:\s*["']?(\d+)/);
+      if (match?.[1]) {
+        const postId = Number(match[1]);
+        if (!isNaN(postId)) {
+          return postId;
+        }
+      }
+      throw new Error(
+        `Unable to fetch numeric postId for this item! slug:${slug}`
+      );
     }
     async getDirectoryPath() {
       if (this.directoryPath) {
@@ -24524,10 +24532,59 @@ Can fix the homepage "request page not found" error!`
   // src/ManhuaPlus/pbconfig.ts
   init_buffer();
   var import_types6 = __toESM(require_lib(), 1);
+
+  // src/generic/MadaraHelper.ts
+  init_buffer();
+  var BASE_VERSION = "1.0.0-alpha.3";
+  function getVersion(options) {
+    if (!options) {
+      return BASE_VERSION;
+    }
+    const baseParts = BASE_VERSION.split("-");
+    const versionNumbers = baseParts[0].split(".").map(Number);
+    const isPrerelease = baseParts.length > 1;
+    if (versionNumbers.length < 3) {
+      throw new Error(
+        `Invalid BASE_VERSION: '${BASE_VERSION}'. Expected format: 'X.Y.Z' or 'X.Y.Z-prerelease.N'`
+      );
+    }
+    if ("increasePrerelease" in options) {
+      if (!isPrerelease) {
+        throw new Error(
+          "Cannot set a prerelease number on a stable version."
+        );
+      }
+      const prereleaseParts = baseParts[1].split(".");
+      if (prereleaseParts.length < 2 || isNaN(Number(prereleaseParts[1]))) {
+        throw new Error(
+          `Invalid prerelease format in BASE_VERSION: '${BASE_VERSION}'. Expected format: 'X.Y.Z-prerelease.N'`
+        );
+      }
+      const newPrereleaseNum = Number(prereleaseParts[1]) + options.increasePrerelease;
+      return `${baseParts[0]}-${prereleaseParts[0]}.${newPrereleaseNum}`;
+    }
+    if (isPrerelease) {
+      throw new Error(
+        "BASE_VERSION is a prerelease. Use increasePrerelease option instead."
+      );
+    }
+    const hasVersionIncrement = options.increaseMajor !== void 0 || options.increaseMinor !== void 0 || options.increasePatch !== void 0;
+    if (!hasVersionIncrement) {
+      throw new Error(
+        "Empty options object provided. Either specify version increments or call getVersion() with no arguments."
+      );
+    }
+    const newMajor = versionNumbers[0] + (options.increaseMajor || 0);
+    const newMinor = versionNumbers[1] + (options.increaseMinor || 0);
+    const newPatch = versionNumbers[2] + (options.increasePatch || 0);
+    return `${newMajor}.${newMinor}.${newPatch}`;
+  }
+
+  // src/ManhuaPlus/pbconfig.ts
   var pbconfig_default = {
     name: "ManhuaPlus",
     description: "Extension that pulls content from manhuaplus.com.",
-    version: "1.0.0-alpha.2",
+    version: getVersion(),
     icon: "icon.png",
     language: "\u{1F1EC}\u{1F1E7}",
     contentRating: import_types6.ContentRating.MATURE,
