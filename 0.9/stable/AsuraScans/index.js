@@ -17087,7 +17087,7 @@ var source = (() => {
   var pbconfig_default = {
     name: "Asura Scans",
     description: "Extension that pulls content from asuracomic.net.",
-    version: "1.0.0-alpha.6",
+    version: "1.0.0-alpha.7",
     icon: "icon.png",
     language: "en",
     contentRating: import_types4.ContentRating.EVERYONE,
@@ -17108,7 +17108,7 @@ var source = (() => {
 
   // src/AsuraScans/AsuraParser.ts
   var parseMangaDetails = async ($2, mangaId) => {
-    const title = $2(".text-center > .text-xl.font-bold").text().trim() ?? "";
+    const title = $2("h3.hover\\:text-themecolor:nth-child(3)").text().trim() ?? "";
     const image = $2('img[alt="poster"]').attr("src") ?? "";
     const description = $2("span.font-medium.text-sm").text().trim() ?? "";
     const author = $2('h3:contains("Author")').next().text().trim() ?? "";
