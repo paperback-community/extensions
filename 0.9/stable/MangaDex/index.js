@@ -3471,6 +3471,7 @@ var source = (() => {
     dataSaverState;
     skipSameChapterState;
     forcePortState;
+    coverArtworkState;
     customCoversState;
     discoverThumbState;
     searchThumbState;
@@ -3497,6 +3498,11 @@ var source = (() => {
         this,
         "force_port_443",
         getForcePort443()
+      );
+      this.coverArtworkState = new State(
+        this,
+        "cover_artwork_enabled",
+        getCoverArtworkEnabled()
       );
       this.customCoversState = new State(
         this,
@@ -3559,6 +3565,12 @@ var source = (() => {
             title: "Force Port 443",
             value: this.forcePortState.value,
             onValueChange: this.forcePortState.selector
+          }),
+          (0, import_types.ToggleRow)("cover_artwork", {
+            title: "Enable Cover Artwork in Manga Description",
+            subtitle: "Show all available volume covers in manga details page",
+            value: this.coverArtworkState.value,
+            onValueChange: this.coverArtworkState.selector
           }),
           (0, import_types.ToggleRow)("custom_covers", {
             title: "Use User Selected Cover Artwork",
@@ -4769,7 +4781,7 @@ var source = (() => {
     }
     return results.map((r) => r.manga);
   };
-  var parseMangaDetails = (mangaId, json, ratingJson) => {
+  var parseMangaDetails = (mangaId, json, ratingJson, coversJson) => {
     const mangaDetails = json.data.attributes;
     const secondaryTitles = mangaDetails.altTitles.flatMap((x) => Object.values(x)).map((x) => Application.decodeHTMLEntities(x));
     const primaryTitle = mangaDetails.title.en ?? Object.values(mangaDetails.title)[0];
@@ -4801,6 +4813,16 @@ var source = (() => {
       image = `${COVER_BASE_URL}/${mangaId}/${coverFileName}${MDImageQuality.getEnding(getMangaThumbnail())}`;
     }
     const rating = ratingJson?.statistics?.[mangaId]?.rating?.average ? ratingJson.statistics[mangaId].rating.average / 10 : void 0;
+    const artworkUrls = [];
+    if (coversJson?.result === "ok" && coversJson.data) {
+      for (const cover of coversJson.data) {
+        if (cover.attributes.fileName) {
+          artworkUrls.push(
+            `${COVER_BASE_URL}/${mangaId}/${cover.attributes.fileName}`
+          );
+        }
+      }
+    }
     return {
       mangaId,
       mangaInfo: {
@@ -4814,7 +4836,8 @@ var source = (() => {
         tagGroups: [{ id: "tags", title: "Tags", tags }],
         contentRating: contentRatingMap[mangaDetails.contentRating?.toLowerCase() ?? ""] ?? import_types4.ContentRating.EVERYONE,
         shareUrl: `${MANGADEX_DOMAIN}/title/${mangaId}`,
-        rating
+        rating,
+        artworkUrls: artworkUrls.length > 0 ? artworkUrls : void 0
       }
     };
   };
@@ -5085,7 +5108,15 @@ var source = (() => {
         method: "GET"
       };
       const ratingJson = await fetchJSON(request);
-      return parseMangaDetails(mangaId, json, ratingJson);
+      let coversJson;
+      if (getCoverArtworkEnabled()) {
+        request = {
+          url: new import_types6.URL(MANGADEX_API).addPathComponent("cover").setQueryItem("manga[]", mangaId).setQueryItem("limit", "100").setQueryItem("order[volume]", "desc").setQueryItem("order[createdAt]", "desc").toString(),
+          method: "GET"
+        };
+        coversJson = await fetchJSON(request);
+      }
+      return parseMangaDetails(mangaId, json, ratingJson, coversJson);
     }
   };
 
@@ -20752,6 +20783,9 @@ var source = (() => {
   function getCustomCoversEnabled() {
     return Application.getState("custom_covers_enabled") ?? false;
   }
+  function getCoverArtworkEnabled() {
+    return Application.getState("cover_artwork_enabled") ?? false;
+  }
   function getAccessToken() {
     const accessToken = Application.getSecureState("access_token");
     const refreshToken = Application.getSecureState("refresh_token");
@@ -22632,7 +22666,7 @@ var source = (() => {
           chapters.data.map(
             (x) => x.relationships.find((x2) => x2.type == "manga").id
           )
-        ).setQueryItem("includes[]", "cover_art").toString(),
+        ).setQueryItem("limit", "100").setQueryItem("includes[]", "cover_art").toString(),
         method: "GET"
       };
       const json = await fetchJSON(request);
@@ -22646,7 +22680,7 @@ var source = (() => {
       for (const chapter of chapters.data) {
         chapterIdToChapter[chapter.id] = chapter;
       }
-      const nextMetadata = items.length < 100 ? void 0 : { offset: offset + 100, collectedIds };
+      const nextMetadata = chapters.data.length < 100 ? void 0 : { offset: offset + 100, collectedIds };
       return {
         items: items.map((x) => ({
           chapterId: x.attributes.latestUploadedChapter,
