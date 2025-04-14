@@ -3956,7 +3956,7 @@ var source = (() => {
     async getSearchResults(query, metadata) {
       if (metadata?.completed) return import_types3.EndOfPageResults;
       const page = metadata?.page ?? 1;
-      const builder = new URLBuilder2(COMICK_API).addPath("v1.0").addPath("search").addQuery("page", page.toString()).addQuery("limit", LIMIT.toString()).addQuery("tachiyomi", "true");
+      const builder = new URLBuilder2(COMICK_API).addPath("v1.0").addPath("search").addQuery("page", page).addQuery("limit", LIMIT).addQuery("tachiyomi", "true");
       const getFilterValue = (id) => query.filters.find((filter) => filter.id == id)?.value;
       const genres = getFilterValue("genres");
       if (genres && typeof genres === "object") {
@@ -4043,7 +4043,7 @@ var source = (() => {
       if (metadata?.completed) return import_types3.EndOfPageResults;
       const page = metadata?.page ?? 1;
       const request = {
-        url: new URLBuilder2(COMICK_API).addPath("v1.0").addPath("search").addQuery("sort", sort).addQuery("limit", limit.toString()).addQuery("page", "1").addQuery("tachiyomi", "true").build(),
+        url: new URLBuilder2(COMICK_API).addPath("v1.0").addPath("search").addQuery("sort", sort).addQuery("limit", limit).addQuery("page", page).addQuery("tachiyomi", "true").build(),
         method: "GET"
       };
       const parsedData = await this.fetchApi(request);
