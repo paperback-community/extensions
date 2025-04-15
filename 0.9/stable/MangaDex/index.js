@@ -21195,7 +21195,7 @@ var source = (() => {
   var MangaDexInterceptor = class extends import_types17.PaperbackInterceptor {
     // Regex to identify image requests
     imageRegex = new RegExp(
-      /\.(png|gif|jpeg|jpg|webp)(\?|$)/gi
+      /\.(png|gif|jpeg|jpg|webp)(\?|$)/i
     );
     /**
      * Adds authentication and referer headers to requests
