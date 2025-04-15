@@ -3219,8 +3219,8 @@ var source = (() => {
     };
   };
   function parseChapters(data, sourceManga, filter) {
-    let chapterCount = 0;
     const chaptersData = filterChapters(data.chapters, filter);
+    let sortingIndex = chaptersData.length;
     return chaptersData.map((chapter) => {
       const chapNum = Number(chapter.chap);
       const volume = Number(chapter.vol);
@@ -3230,7 +3230,7 @@ var source = (() => {
         sourceManga,
         title: formatChapterTitle(chapter, filter.showTitle),
         chapNum: !isNaN(chapNum) ? chapNum : 0,
-        sortingIndex: ++chapterCount,
+        sortingIndex: sortingIndex--,
         volume: filter.showVol && !isNaN(volume) ? volume : void 0,
         publishDate: new Date(chapter.created_at),
         version: groups.join(","),
@@ -3346,11 +3346,11 @@ var source = (() => {
       { id: "cn", value: "Manhua" }
     ];
   }
-  function parseContentRating(content_rating) {
-    if (content_rating === "erotica") {
+  function parseContentRating(contentRating) {
+    if (contentRating === "erotica") {
       return import_types.ContentRating.ADULT;
     }
-    if (content_rating === "suggestive") {
+    if (contentRating === "suggestive") {
       return import_types.ContentRating.MATURE;
     }
     return import_types.ContentRating.EVERYONE;
