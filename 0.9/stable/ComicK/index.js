@@ -3219,6 +3219,7 @@ var source = (() => {
     };
   };
   function parseChapters(data, sourceManga, filter) {
+    let chapterCount = 0;
     const chaptersData = filterChapters(data.chapters, filter);
     return chaptersData.map((chapter) => {
       const chapNum = Number(chapter.chap);
@@ -3228,7 +3229,8 @@ var source = (() => {
         chapterId: chapter.hid,
         sourceManga,
         title: formatChapterTitle(chapter, filter.showTitle),
-        chapNum,
+        chapNum: !isNaN(chapNum) ? chapNum : 0,
+        sortingIndex: ++chapterCount,
         volume: filter.showVol && !isNaN(volume) ? volume : void 0,
         publishDate: new Date(chapter.created_at),
         version: groups.join(","),
