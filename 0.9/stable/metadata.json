@@ -338,5 +338,42 @@
         "types": "1.0.0-alpha.46"
       }
     }
+  },
+  "mangabox-extensions": {
+    "MangaBatCOM": {
+      "build_time": "2025-04-12T15:40:06.833Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "MangaKakalotGG": {
+      "build_time": "2025-04-12T15:40:06.833Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "MangaNatoGG": {
+      "build_time": "2025-04-12T15:40:06.833Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "NatoMangaCOM": {
+      "build_time": "2025-04-12T15:40:06.833Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "NeloMangaNET": {
+      "build_time": "2025-04-12T15:40:06.833Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    }
   }
 }
