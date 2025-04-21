@@ -91,5 +91,252 @@
         "types": "1.0.0-alpha.46"
       }
     }
+  },
+  "madara-extensions": {
+    "AllPornComic": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "ArthurScan": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "AzoraMoon": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "CoffeeManga": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "DarkScans": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "DragonTea": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "GourmetScans": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "HariManga": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "HiperDex": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "KunManga": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "LHTranslation": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "LekManga": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "LilyManga": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "MadaraDex": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "Manga3asq": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "MangaClash": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "MangaOrigines": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "MangaReadOrg": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "MangaScantrad": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "MangaZin": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "ManhuaFast": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "ManhuaPlus": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "Manhuaus": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "ManhwaRaw": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "ManhwaTop": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "NovelMic": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "PlatinumScans": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "ResetScans": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "SamuraiScan": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "SetsuScans": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "TheBlank": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "ToonGod": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "Toonily": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "UToon": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "WebtoonXYZ": {
+      "build_time": "2025-04-15T01:04:56.679Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    }
   }
 }
