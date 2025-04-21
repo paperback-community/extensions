@@ -375,5 +375,119 @@
         "types": "1.0.0-alpha.46"
       }
     }
+  },
+  "mangastream-extensions": {
+    "AstraScans": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "AsuraScansFree": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "CypherScans": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "DrakeScans": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "ElarcToons": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "Hentai20": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "IgnisComic": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "LelManga": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "LunarScans": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "ManhwaX": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "MythicScans": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "NightScans": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "RawKuma": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "SushiScans": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "Thunderscans": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    },
+    "xCalibrScans": {
+      "build_time": "2025-04-01T00:58:12.265Z",
+      "built_with": {
+        "toolchain": "1.0.0-alpha.46",
+        "types": "1.0.0-alpha.46"
+      }
+    }
   }
 }
