@@ -1834,7 +1834,7 @@ var source = (() => {
       init_buffer();
       Object.defineProperty(exports, "__esModule", { value: true });
       exports.Form = void 0;
-      var Form15 = class {
+      var Form14 = class {
         reloadForm() {
           const formId = this["__underlying_formId"];
           if (!formId)
@@ -1847,7 +1847,7 @@ var source = (() => {
           return false;
         }
       };
-      exports.Form = Form15;
+      exports.Form = Form14;
     }
   });
 
@@ -2077,7 +2077,7 @@ var source = (() => {
       init_buffer();
       Object.defineProperty(exports, "__esModule", { value: true });
       exports.PaperbackInterceptor = void 0;
-      var PaperbackInterceptor2 = class {
+      var PaperbackInterceptor3 = class {
         id;
         constructor(id) {
           this.id = id;
@@ -2089,7 +2089,7 @@ var source = (() => {
           Application.unregisterInterceptor(this.id);
         }
       };
-      exports.PaperbackInterceptor = PaperbackInterceptor2;
+      exports.PaperbackInterceptor = PaperbackInterceptor3;
     }
   });
 
@@ -2118,26 +2118,26 @@ var source = (() => {
       init_buffer();
       Object.defineProperty(exports, "__esModule", { value: true });
       exports.unlock = exports.lock = void 0;
-      var promises = {};
-      var resolvers = {};
-      var lock = async (uid) => {
-        if (promises[uid]) {
-          await promises[uid];
+      var promises2 = {};
+      var resolvers2 = {};
+      var lock2 = async (uid) => {
+        if (promises2[uid]) {
+          await promises2[uid];
           await (0, exports.lock)(uid);
           return;
         }
-        promises[uid] = new Promise((resolve) => resolvers[uid] = () => {
-          delete promises[uid];
+        promises2[uid] = new Promise((resolve) => resolvers2[uid] = () => {
+          delete promises2[uid];
           resolve();
         });
       };
-      exports.lock = lock;
-      var unlock = (uid) => {
-        if (resolvers[uid]) {
-          resolvers[uid]();
+      exports.lock = lock2;
+      var unlock2 = (uid) => {
+        if (resolvers2[uid]) {
+          resolvers2[uid]();
         }
       };
-      exports.unlock = unlock;
+      exports.unlock = unlock2;
     }
   });
 
@@ -2939,12 +2939,12 @@ var source = (() => {
         SourceIntents2[SourceIntents2["SETTINGS_UI"] = 32] = "SETTINGS_UI";
         SourceIntents2[SourceIntents2["MANGA_SEARCH"] = 64] = "MANGA_SEARCH";
       })(SourceIntents || (exports.SourceIntents = SourceIntents = {}));
-      var ContentRating2;
-      (function(ContentRating3) {
-        ContentRating3["EVERYONE"] = "SAFE";
-        ContentRating3["MATURE"] = "MATURE";
-        ContentRating3["ADULT"] = "ADULT";
-      })(ContentRating2 || (exports.ContentRating = ContentRating2 = {}));
+      var ContentRating3;
+      (function(ContentRating4) {
+        ContentRating4["EVERYONE"] = "SAFE";
+        ContentRating4["MATURE"] = "MATURE";
+        ContentRating4["ADULT"] = "ADULT";
+      })(ContentRating3 || (exports.ContentRating = ContentRating3 = {}));
     }
   });
 
@@ -10457,7 +10457,6 @@ var source = (() => {
     MangaDexExtension: () => MangaDexExtension
   });
   init_buffer();
-  var import_types22 = __toESM(require_lib(), 1);
 
   // src/MangaDex/MangaDexInterceptor.ts
   init_buffer();
@@ -10743,20 +10742,20 @@ var source = (() => {
   var MDContentRatingClass = class {
     Ratings = [
       {
-        name: "Safe",
+        name: "Safe (EVERYONE)",
         enum: "safe",
         default: true
       },
       {
-        name: "Suggestive",
+        name: "Suggestive (MATURE)",
         enum: "suggestive"
       },
       {
-        name: "Erotica",
+        name: "Erotica (ADULT)",
         enum: "erotica"
       },
       {
-        name: "Pornographic",
+        name: "Pornographic (ADULT)",
         enum: "pornographic"
       }
     ];
@@ -10947,6 +10946,11 @@ var source = (() => {
         (0, import_types.Section)("generalContent", [
           (0, import_types.SelectRow)("languages", {
             title: "Languages",
+            subtitle: (() => {
+              const selectedLangCodes = this.languagesState.value;
+              const selectedLangNames = selectedLangCodes.map((langCode) => MDLanguages.getName(langCode)).sort((a, b) => a.localeCompare(b));
+              return selectedLangNames.join(", ");
+            })(),
             value: this.languagesState.value,
             minItemCount: 1,
             maxItemCount: 100,
@@ -10958,7 +10962,19 @@ var source = (() => {
           }),
           (0, import_types.SelectRow)("ratings", {
             title: "Content Rating",
-            subtitle: this.ratingsState.value.map((rating) => MDRatings.getName(rating)).join(", "),
+            subtitle: (() => {
+              const selectedRatings = this.ratingsState.value;
+              const desiredOrder = [
+                "safe",
+                "suggestive",
+                "erotica",
+                "pornographic"
+              ];
+              const orderedSelected = desiredOrder.filter(
+                (ratingId) => selectedRatings.includes(ratingId)
+              ).map((ratingId) => MDRatings.getName(ratingId));
+              return orderedSelected.join(", ");
+            })(),
             value: this.ratingsState.value,
             minItemCount: 1,
             maxItemCount: 4,
@@ -12208,9 +12224,10 @@ var source = (() => {
     const mangaDetails = json.data.attributes;
     const secondaryTitles = mangaDetails.altTitles.flatMap((x) => Object.values(x)).map((x) => Application.decodeHTMLEntities(x));
     const primaryTitle = mangaDetails.title.en ?? Object.values(mangaDetails.title)[0];
-    const desc = Application.decodeHTMLEntities(
-      mangaDetails.description.en ?? ""
-    )?.replace(/\[\/?[bus]]/g, "");
+    const desc = (mangaDetails.description.en ?? "")?.replace(
+      /\[\/?[bus]]/g,
+      ""
+    );
     const status = mangaDetails.status;
     const tags = mangaDetails.tags.map((tag) => ({
       id: tag.id,
@@ -12288,13 +12305,28 @@ var source = (() => {
       const mangaId = sourceManga.mangaId;
       checkId(mangaId);
       const metadataUpdaterEnabled = !skipMetadataUpdate && getMetadataUpdater();
-      if (metadataUpdaterEnabled) {
+      if (metadataUpdaterEnabled || !sourceManga.mangaInfo || !sourceManga.mangaInfo.status || !sourceManga.mangaInfo.rating) {
         const updatedManga = await this.mangaProvider.getMangaDetails(mangaId);
         sourceManga.mangaInfo = updatedManga.mangaInfo;
       }
       const languages = getLanguages();
       const skipSameChapter = getSkipSameChapter();
       const ratings = getRatings();
+      const paperbackToMangaDexRatings = {
+        [import_types5.ContentRating.EVERYONE]: ["safe"],
+        [import_types5.ContentRating.MATURE]: ["suggestive"],
+        [import_types5.ContentRating.ADULT]: ["erotica", "pornographic"]
+      };
+      const mangaPbRating = sourceManga.mangaInfo.contentRating;
+      const mangaMdRatings = paperbackToMangaDexRatings[mangaPbRating] ?? [];
+      const isRatingAllowed = mangaMdRatings.some(
+        (mdRating) => ratings.includes(mdRating)
+      );
+      if (!isRatingAllowed) {
+        throw new Error(
+          `If you see UNKNOWN at the top left under the Read button, go back and then re-open this manga. Otherwise, this manga has a content rating (${mangaPbRating}) which might not be enabled in your source settings. Please adjust your content filter settings to view chapters`
+        );
+      }
       const groupBlockingEnabled = getGroupBlockingEnabled();
       const fuzzyBlockingEnabled = getFuzzyBlockingEnabled();
       const blockedGroups = groupBlockingEnabled ? Object.keys(getBlockedGroups() || {}) : [];
@@ -12306,12 +12338,48 @@ var source = (() => {
       let sortingIndex = 0;
       let hasResults = true;
       let prevChapNum = 0;
+      let totalChaptersFetched = 0;
+      let hasExternalChapters = false;
+      let verifiedLatestChapterId = null;
+      if (getOptimizeUpdates()) {
+        try {
+          const unfilteredRequest = {
+            url: new import_types5.URL(MANGADEX_API).addPathComponent("manga").addPathComponent(mangaId).addPathComponent("feed").setQueryItems({
+              "contentRating[]": [
+                "safe",
+                "suggestive",
+                "erotica",
+                "pornographic"
+              ]
+            }).setQueryItem("limit", "25").setQueryItem("offset", "0").setQueryItem("includes[]", "manga").setQueryItem("order[createdAt]", "desc").setQueryItem("order[volume]", "desc").setQueryItem("order[chapter]", "desc").setQueryItem("includeFutureUpdates", "1").toString(),
+            method: "GET"
+          };
+          const unfilteredJson = await fetchJSON(
+            unfilteredRequest
+          );
+          if (unfilteredJson.data && unfilteredJson.data.length > 0) {
+            for (const chapterData of unfilteredJson.data) {
+              const chapterIdFromFeed = chapterData.id;
+              const mangaRel = chapterData.relationships?.find(
+                (rel) => rel.type === "manga"
+              );
+              const latestChapterIdOnManga = mangaRel?.attributes?.latestUploadedChapter;
+              if (chapterIdFromFeed && latestChapterIdOnManga && chapterIdFromFeed === latestChapterIdOnManga) {
+                verifiedLatestChapterId = chapterIdFromFeed;
+                break;
+              }
+            }
+          }
+        } catch {
+          verifiedLatestChapterId = null;
+        }
+      }
       while (hasResults) {
         const request = {
           url: new import_types5.URL(MANGADEX_API).addPathComponent("manga").addPathComponent(mangaId).addPathComponent("feed").setQueryItem("limit", "500").setQueryItem("offset", offset.toString()).setQueryItem("includes[]", "scanlation_group").setQueryItem(
             "excludedGroups[]",
             blockedGroups.length > 0 ? blockedGroups : []
-          ).setQueryItem("order[volume]", "desc").setQueryItem("order[chapter]", "desc").setQueryItem("order[createdAt]", "desc").setQueryItem("contentRating[]", ratings).setQueryItem("includeFutureUpdates", "0").setQueryItem("includeEmptyPages", "0").toString(),
+          ).setQueryItem("order[volume]", "desc").setQueryItem("order[chapter]", "desc").setQueryItem("order[createdAt]", "desc").setQueryItem("contentRating[]", ratings).setQueryItem("translatedLanguage[]", languages).toString(),
           method: "GET"
         };
         const json = await fetchJSON(request);
@@ -12319,8 +12387,12 @@ var source = (() => {
         if (json.data === void 0)
           throw new Error(`Failed to create chapters for ${mangaId}`);
         for (const chapter of json.data) {
+          totalChaptersFetched++;
           const chapterId = chapter.id;
           const chapterDetails = chapter.attributes;
+          if (chapterDetails.externalUrl && chapterDetails.externalUrl.trim() !== "") {
+            hasExternalChapters = true;
+          }
           const time = new Date(chapterDetails.publishAt);
           const createdAt = new Date(chapterDetails.createdAt);
           if (!latestChapter || createdAt > latestChapter.createdAt) {
@@ -12328,9 +12400,15 @@ var source = (() => {
               id: chapterId,
               createdAt
             };
-            sourceManga.mangaInfo.additionalInfo = {
-              latestUploadedChapter: chapterId
-            };
+            if (verifiedLatestChapterId) {
+              sourceManga.mangaInfo.additionalInfo = {
+                latestUploadedChapter: verifiedLatestChapterId
+              };
+            } else {
+              sourceManga.mangaInfo.additionalInfo = {
+                latestUploadedChapter: chapterId
+              };
+            }
           }
           if (!languages.includes(chapterDetails.translatedLanguage)) {
             continue;
@@ -12394,10 +12472,20 @@ var source = (() => {
           hasResults = false;
         }
       }
-      if (chapters.length == 0) {
-        throw new Error(
-          `Couldn't find any chapters in your selected language for mangaId: ${mangaId}!`
-        );
+      if (chapters.length === 0) {
+        if (totalChaptersFetched > 0 && hasExternalChapters) {
+          throw new Error(
+            `Chapters are hosted externally outside MangaDex, you'll need to use another source or read it online`
+          );
+        } else if (totalChaptersFetched > 0) {
+          throw new Error(
+            `Couldn't find any chapters matching your selected language(s). Chapters in other languages might exist`
+          );
+        } else {
+          throw new Error(
+            `No chapters were found from the MangaDex API. This manga likely has no chapters in your selected language(s)`
+          );
+        }
       }
       return chapters.map((chapter) => {
         chapter.sortingIndex = (chapter.sortingIndex ?? 0) + chapters.length;
@@ -12526,6 +12614,14 @@ var source = (() => {
         method: "GET"
       };
       const json = await fetchJSON(request);
+      if (json.result === "error" && Array.isArray(json.errors) && json.errors.length === 1) {
+        const err = json.errors[0];
+        if (err.status === 404) {
+          throw new Error(
+            `MangaDex API Error: [${err.status}] ${err.detail}. You may need to re-add this manga`
+          );
+        }
+      }
       request = {
         url: new import_types6.URL(MANGADEX_API).addPathComponent("statistics").addPathComponent("manga").addPathComponent(mangaId).toString(),
         method: "GET"
@@ -13852,8 +13948,8 @@ var source = (() => {
               )
             }),
             (0, import_types12.ToggleRow)("metadata_updater", {
-              title: "Enable Metadata Updater",
-              subtitle: "Manga description, cover, title, author, and statuses are updated during chapter updates (opening manga/library updates)",
+              title: "Enable Forced Metadata Updater",
+              subtitle: "Manga description, cover, title, author, and statuses are forcefully updated during chapter updates (opening manga/library updates)",
               value: this.metadataUpdaterState.value,
               onValueChange: Application.Selector(
                 this,
@@ -28725,7 +28821,9 @@ var source = (() => {
           format = "png";
         } else if (jpegRegex.test(request.url)) {
           const jpegData = import_jpeg_js.default.decode(new Uint8Array(data2), {
-            useTArray: true
+            useTArray: true,
+            colorTransform: false,
+            tolerantDecoding: false
           });
           decoded = {
             width: jpegData.width,
@@ -28747,10 +28845,7 @@ var source = (() => {
           const r = pixels[idx];
           const g = pixels[idx + 1];
           const b = pixels[idx + 2];
-          const result = r > 245 && g > 245 && b > 245;
-          if (!result) {
-          }
-          return result;
+          return r > 245 && g > 245 && b > 245;
         };
         outer: for (let y = 0; y < height; y++) {
           const rowOffset = y * width * 4;
@@ -28818,7 +28913,7 @@ var source = (() => {
         } else if (format === "jpeg") {
           const jpegData = import_jpeg_js.default.encode(
             { data: cropped, width: newWidth, height: newHeight },
-            80
+            75
           );
           if (jpegData.data.buffer instanceof ArrayBuffer) {
             encoded = jpegData.data.buffer;
@@ -28911,7 +29006,7 @@ var source = (() => {
       while (hasResults) {
         const batch = ids.slice(offset, offset + limit);
         const [_2, buffer2] = await Application.scheduleRequest({
-          url: new import_types18.URL(MANGADEX_API).addPathComponent("manga").setQueryItem("ids[]", batch).setQueryItems({
+          url: new import_types18.URL(MANGADEX_API).addPathComponent("manga").setQueryItems({
             "includes[]": ["author", "artist", "cover_art"]
           }).setQueryItems({
             "contentRating[]": [
@@ -28920,7 +29015,7 @@ var source = (() => {
               "erotica",
               "pornographic"
             ]
-          }).setQueryItem("limit", limit.toString()).toString(),
+          }).setQueryItem("ids[]", batch).setQueryItem("limit", limit.toString()).toString(),
           method: "get"
         });
         const json = JSON.parse(
@@ -30270,7 +30365,7 @@ var source = (() => {
       }
       const nextMetadata = chapters.data.length < 100 ? void 0 : { offset: offset + 100, collectedIds };
       return {
-        items: items.map((x) => ({
+        items: items.filter((x) => x.attributes.latestUploadedChapter != null).map((x) => ({
           chapterId: x.attributes.latestUploadedChapter,
           imageUrl: x.imageUrl,
           mangaId: x.mangaId,
@@ -30443,12 +30538,13 @@ var source = (() => {
      * Processes chapter read status updates to MangaDex
      */
     async processChapterReadActionQueue(actions) {
+      const guidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
       if (!getAccessToken()) {
         return {
           successfulItems: [],
-          failedItems: actions.map(
-            (action) => action.readChapter.chapterId
-          )
+          failedItems: actions.filter(
+            (action) => action.readChapter?.chapterId && guidRegex.test(action.readChapter.chapterId)
+          ).map((action) => action.readChapter.chapterId)
         };
       }
       const successfulItems = [];
@@ -30457,9 +30553,9 @@ var source = (() => {
       if (!trackingEnabled) {
         return {
           successfulItems: [],
-          failedItems: actions.map(
-            (action) => action.readChapter.chapterId
-          )
+          failedItems: actions.filter(
+            (action) => action.readChapter?.chapterId && guidRegex.test(action.readChapter.chapterId)
+          ).map((action) => action.readChapter.chapterId)
         };
       }
       const allowedContentRatings = getTrackingContentRatings().map(
@@ -30482,8 +30578,14 @@ var source = (() => {
       };
       const chaptersByManga = {};
       for (const action of actions) {
+        const chapterId = action.readChapter?.chapterId;
+        if (!chapterId || !guidRegex.test(chapterId)) {
+          console.warn(
+            `Skipping chapter read action due to invalid or missing chapterId ('${chapterId ?? "undefined"}') for manga: ${action.sourceManga.mangaId}`
+          );
+          continue;
+        }
         const mangaId = action.sourceManga.mangaId;
-        const chapterId = action.readChapter.chapterId;
         const contentRating = action.sourceManga.mangaInfo?.contentRating;
         if (contentRating) {
           const mappedRatings = mapContentRating(contentRating);
@@ -30694,10 +30796,105 @@ var source = (() => {
     }
   };
 
+  // src/MangaDex/utils/BasicRateLimiter.ts
+  init_buffer();
+
+  // node_modules/@paperback/types/src/impl/Lock.ts
+  init_buffer();
+  var promises = {};
+  var resolvers = {};
+  var lock = async (uid) => {
+    if (promises[uid]) {
+      await promises[uid];
+      await lock(uid);
+      return;
+    }
+    promises[uid] = new Promise(
+      (resolve) => resolvers[uid] = () => {
+        delete promises[uid];
+        resolve();
+      }
+    );
+  };
+  var unlock = (uid) => {
+    if (resolvers[uid]) {
+      resolvers[uid]();
+    }
+  };
+
+  // node_modules/@paperback/types/src/impl/PaperbackInterceptor.ts
+  init_buffer();
+  var PaperbackInterceptor2 = class {
+    constructor(id) {
+      this.id = id;
+    }
+    registerInterceptor() {
+      Application.registerInterceptor(
+        this.id,
+        Application.Selector(
+          this,
+          "interceptRequest"
+        ),
+        Application.Selector(
+          this,
+          "interceptResponse"
+        )
+      );
+    }
+    unregisterInterceptor() {
+      Application.unregisterInterceptor(this.id);
+    }
+  };
+
+  // src/MangaDex/utils/BasicRateLimiter.ts
+  var BasicRateLimiter = class extends PaperbackInterceptor2 {
+    constructor(id, options) {
+      super(id);
+      this.options = options;
+    }
+    promise;
+    currentRequestsMade = 0;
+    lastReset = Date.now();
+    imageRegex = new RegExp(
+      /\.(png|gif|jpeg|jpg|webp)(\?|$)/i
+    );
+    async interceptRequest(request) {
+      if (this.options.ignoreImages && this.imageRegex.test(request.url)) {
+        return request;
+      }
+      await lock(this.id);
+      await this.incrementRequestCount();
+      unlock(this.id);
+      return request;
+    }
+    async interceptResponse(request, response, data2) {
+      return data2;
+    }
+    async incrementRequestCount() {
+      await this.promise;
+      const secondsSinceLastReset = (Date.now() - this.lastReset) / 1e3;
+      if (secondsSinceLastReset > this.options.bufferInterval) {
+        this.currentRequestsMade = 0;
+        this.lastReset = Date.now();
+      }
+      this.currentRequestsMade += 1;
+      if (this.currentRequestsMade >= this.options.numberOfRequests) {
+        if (secondsSinceLastReset <= this.options.bufferInterval) {
+          const sleepTime = this.options.bufferInterval - secondsSinceLastReset;
+          console.log(
+            `[BasicRateLimiter] rate limit hit, sleeping for ${sleepTime}`
+          );
+          this.promise = Application.sleep(sleepTime);
+          await this.promise;
+        }
+      }
+    }
+  };
+
   // src/MangaDex/main.ts
   var MangaDexExtension = class {
     // Rate limiting and request interception
-    globalRateLimiter = new import_types22.BasicRateLimiter("rateLimiter", {
+    globalRateLimiter = new BasicRateLimiter("rateLimiter", {
       numberOfRequests: 4,
       bufferInterval: 1,
       ignoreImages: true
