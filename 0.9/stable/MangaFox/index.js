@@ -17443,33 +17443,29 @@ var source = (() => {
       };
       const $3 = await this.fetchCheerio(request2);
       const chapters = [];
-      $3("div#chapterlist ul li").each((_, element) => {
-        const anchor = $3("a", element);
-        const date = parseDate($3("p.title2", element).html() ?? "");
-        const chapterIdRaw = anchor.attr("href")?.trim();
+      for (const chapter2 of $3("div#chapterlist ul li").children("a").toArray()) {
+        const date = parseDate($3("p.title2", chapter2).html() ?? "");
+        const chapterIdRaw = $3(chapter2).attr("href")?.trim();
         const chapterIdRegex = chapterIdRaw?.match(
           /\/manga\/[a-zA-Z0-9_]*\/(.*)\//
         );
         let chapterId = null;
         if (chapterIdRegex && chapterIdRegex[1])
-          chapterId = chapterIdRegex[1];
-        if (!chapterId) return;
+          chapterId = chapterIdRegex[1].split("/").pop() ?? null;
+        if (!chapterId) continue;
+        console.log(`Chapter ID: ${chapterId}`);
         const chapRegex = chapterId?.match(/c([0-9.]+)/);
         let chapNum = 0;
         if (chapRegex && chapRegex[1]) chapNum = Number(chapRegex[1]);
-        const volRegex = chapterId?.match(/v([0-9.]+)/);
-        let volNum = 0;
-        if (volRegex && volRegex[1]) volNum = Number(volRegex[1]);
         chapters.push({
           chapterId,
           sourceManga,
           //title: title,
           langCode: "\u{1F1EC}\u{1F1E7}",
           chapNum: isNaN(chapNum) ? 0 : chapNum,
-          volume: isNaN(volNum) ? 0 : volNum,
           publishDate: date
         });
-      });
+      }
       return chapters.reverse();
     }
     async getChapterDetails(chapter) {

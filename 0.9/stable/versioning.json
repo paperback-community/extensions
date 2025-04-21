@@ -1,5 +1,5 @@
 {
-  "buildTime": "2025-04-21T20:55:29.204Z",
+  "buildTime": "2025-04-21T20:59:57.023Z",
   "builtWith": {
     "toolchain": "1.0.0-alpha.46",
     "types": "1.0.0-alpha.46"
@@ -632,7 +632,7 @@
       "id": "MangaFox",
       "name": "MangaFox",
       "description": "Extension that pulls content from fanfox.net.",
-      "version": "1.0.0-alpha.1",
+      "version": "1.0.0-alpha.2",
       "icon": "icon.png",
       "language": "en",
       "contentRating": "MATURE",
