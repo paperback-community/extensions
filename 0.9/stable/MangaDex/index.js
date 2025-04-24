@@ -12040,23 +12040,24 @@ var source = (() => {
     const queryPhrase = queryWords.join(" ");
     const phraseAtStartRegex = new RegExp(`^${queryPhrase}\\b`, "i");
     if (phraseAtStartRegex.test(titlePhrase)) {
-      return 95;
+      return 99;
     }
     const phraseAnywhereRegex = new RegExp(`\\b${queryPhrase}\\b`, "i");
     if (phraseAnywhereRegex.test(titlePhrase)) {
+      return 95;
+    }
+    const adjIdx = findAdjacentSequence(titleWords, queryWords);
+    if (adjIdx === 0) {
       return 90;
+    } else if (adjIdx > 0) {
+      return 85;
     }
     if (allWordsPresent(titleWords, queryWords)) {
       if (wordsAppearInOrder(titleWords, queryWords)) {
-        return 90;
-      } else if (wordsAppearInReverseOrder(titleWords, queryWords)) {
-        return 85;
-      } else {
         return 80;
+      } else {
+        return 75;
       }
-    }
-    if (wordsAppearInOrder(titleWords, queryWords)) {
-      return 80;
     }
     const matchedQueryWords = getMatchedQueryWordsCount(titleWords, queryWords);
     const proportionMatched = matchedQueryWords / queryWords.length;
@@ -12076,7 +12077,7 @@ var source = (() => {
     return Math.max(0, Math.min(70, finalScore));
   };
   var tokenize = (text3) => {
-    return text3.toLowerCase().replace(/[\u2019']/g, "").replace(/[^\w\s-]/g, "").split(/[\s-_]+/).filter((word) => word.length > 0);
+    return text3.toLowerCase().replace(/[\u2019']/g, "").replace(/[^\w\s-]+/g, " ").split(/[\s-_]+/).filter((word) => word.length > 0);
   };
   var stemmedTokens = (tokens) => {
     return tokens.map((word) => stemmer(word));
@@ -12110,9 +12111,20 @@ var source = (() => {
     }
     return true;
   };
-  var wordsAppearInReverseOrder = (titleWords, queryWords) => {
-    const reversedQueryWords = [...queryWords].reverse();
-    return wordsAppearInOrder(titleWords, reversedQueryWords);
+  var findAdjacentSequence = (titleWords, queryWords) => {
+    if (queryWords.length === 0 || titleWords.length < queryWords.length)
+      return -1;
+    for (let i = 0; i <= titleWords.length - queryWords.length; i++) {
+      let allMatch = true;
+      for (let j = 0; j < queryWords.length; j++) {
+        if (wordSimilarity(queryWords[j], titleWords[i + j]) < 0.7) {
+          allMatch = false;
+          break;
+        }
+      }
+      if (allMatch) return i;
+    }
+    return -1;
   };
   var allWordsPresent = (titleWords, queryWords) => {
     for (const queryWord of queryWords) {
@@ -12203,6 +12215,15 @@ var source = (() => {
       let relevance = 0;
       if (query?.title && getRelevanceScoringEnabled()) {
         relevance = relevanceScore(title, query.title);
+        const altTitles = mangaDetails.altTitles?.flatMap(
+          (x) => Object.values(x)
+        ).map((x) => Application.decodeHTMLEntities(x)) || [];
+        for (const alt of altTitles) {
+          const altScore = relevanceScore(alt, query.title);
+          if (altScore > relevance) {
+            relevance = altScore;
+          }
+        }
       }
       results.push({
         manga: {
