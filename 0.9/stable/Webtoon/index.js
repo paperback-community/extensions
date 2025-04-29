@@ -21641,7 +21641,7 @@ var source = (() => {
               id: "0",
               title: "genres",
               tags: detailElement.find(".genre").toArray().map((genre) => ({
-                id: $2(genre).text(),
+                id: $2(genre).text().replace(" ", "-"),
                 title: $2(genre).text()
               }))
             }
