@@ -22,10 +22,10 @@
       }
     },
     "MangaDex": {
-      "build_time": "2025-04-24T11:09:59.922Z",
+      "build_time": "2025-05-01T11:38:57.058Z",
       "built_with": {
-        "toolchain": "1.0.0-alpha.46",
-        "types": "1.0.0-alpha.46"
+        "toolchain": "1.0.0-alpha.47",
+        "types": "1.0.0-alpha.47"
       }
     },
     "MangaFire": {

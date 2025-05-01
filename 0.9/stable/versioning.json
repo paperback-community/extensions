@@ -1,8 +1,8 @@
 {
-  "buildTime": "2025-04-29T12:05:56.732Z",
+  "buildTime": "2025-05-01T11:39:19.875Z",
   "builtWith": {
-    "toolchain": "1.0.0-alpha.46",
-    "types": "1.0.0-alpha.46"
+    "toolchain": "1.0.0-alpha.47",
+    "types": "1.0.0-alpha.47"
   },
   "repository": {
     "name": "Paperback Community Extensions (0.9)",
@@ -580,7 +580,7 @@
       "id": "MangaDex",
       "name": "MangaDex",
       "description": "Extension that pulls content from mangadex.org.",
-      "version": "1.0.0-alpha.14",
+      "version": "1.0.0-alpha.15",
       "icon": "icon.png",
       "language": null,
       "contentRating": "SAFE",

@@ -1860,7 +1860,7 @@ var source = (() => {
       exports.LabelRow = LabelRow6;
       exports.InputRow = InputRow2;
       exports.ToggleRow = ToggleRow7;
-      exports.SelectRow = SelectRow7;
+      exports.SelectRow = SelectRow6;
       exports.ButtonRow = ButtonRow8;
       exports.WebViewRow = WebViewRow3;
       exports.NavigationRow = NavigationRow4;
@@ -1875,7 +1875,7 @@ var source = (() => {
       function ToggleRow7(id, props) {
         return { ...props, id, type: "toggleRow", isHidden: props.isHidden ?? false };
       }
-      function SelectRow7(id, props) {
+      function SelectRow6(id, props) {
         return { ...props, id, type: "selectRow", isHidden: props.isHidden ?? false };
       }
       function ButtonRow8(id, props) {
@@ -2155,7 +2155,7 @@ var source = (() => {
         promise;
         currentRequestsMade = 0;
         lastReset = Date.now();
-        imageRegex = new RegExp(/\.(png|gif|jpeg|jpg|webp)(\?|$)/gi);
+        imageRegex = new RegExp(/\.(png|gif|jpeg|jpg|webp)(\?|$)/i);
         constructor(id, options) {
           super(id);
           this.options = options;
@@ -13576,50 +13576,14 @@ var source = (() => {
       "show_content_rating_icons",
       getShowRatingIcons()
     );
-    sortOrderState = new State(this, "search_sort_order", [
-      getSearchSortOrder()
-    ]);
     relevanceScoringState = new State(
       this,
       "relevance_scoring_enabled",
       getRelevanceScoringEnabled()
     );
     getSections() {
-      const sortOptions = [
-        { id: "", title: "Default (Latest Upload)" },
-        { id: "order[relevance]-desc", title: "Best Match" },
-        { id: "order[latestUploadedChapter]-desc", title: "Latest Upload" },
-        { id: "order[latestUploadedChapter]-asc", title: "Oldest Upload" },
-        { id: "order[title]-asc", title: "Title Ascending" },
-        { id: "order[title]-desc", title: "Title Descending" },
-        { id: "order[rating]-desc", title: "Highest Rating" },
-        { id: "order[rating]-asc", title: "Lowest Rating" },
-        { id: "order[followedCount]-desc", title: "Most Follows" },
-        { id: "order[followedCount]-asc", title: "Least Follows" },
-        { id: "order[createdAt]-desc", title: "Recently Added" },
-        { id: "order[createdAt]-asc", title: "Oldest Added" },
-        { id: "order[year]-asc", title: "Year Ascending" },
-        { id: "order[year]-desc", title: "Year Descending" }
-      ];
-      const currentValue = this.sortOrderState.value[0];
-      const currentOption = sortOptions.find(
-        (option) => option.id === currentValue
-      );
-      const currentSortTitle = currentOption?.title || "Default (None)";
       return [
         (0, import_types9.Section)("sorting", [
-          (0, import_types9.SelectRow)("search_sort_order", {
-            title: "Search Sort Order",
-            subtitle: `Current: ${currentSortTitle}`,
-            value: this.sortOrderState.value,
-            options: sortOptions,
-            minItemCount: 1,
-            maxItemCount: 1,
-            onValueChange: Application.Selector(
-              this,
-              "handleSortOrderChange"
-            )
-          }),
           (0, import_types9.ToggleRow)("relevance_scoring_enabled", {
             title: "Enable Relevance Scoring",
             subtitle: "Improved sort order for search results based on title relevance",
@@ -13673,11 +13637,6 @@ var source = (() => {
       ];
     }
     // Settings change handlers
-    async handleSortOrderChange(value) {
-      await this.sortOrderState.updateValue(value);
-      setSearchSortOrder(value[0]);
-      this.reloadForm();
-    }
     async handleVolumeChange(value) {
       await this.volumeState.updateValue(value);
       setShowVolume(value);
@@ -13737,13 +13696,13 @@ var source = (() => {
       }
       return [
         (0, import_types10.Section)(
-          "introspect",
-          Object.entries(accessToken.tokenBody).map(
-            ([key, value]) => (0, import_types10.LabelRow)(key, {
-              title: key,
-              value: String(value)
-            })
-          )
+          {
+            id: "introspect",
+            footer: Object.entries(accessToken.tokenBody).map(
+              ([key, value]) => typeof value === "object" && value !== null ? `${key}: ${JSON.stringify(value, null, 2)}` : `${key}: ${String(value)}`
+            ).join("\n")
+          },
+          []
         ),
         (0, import_types10.Section)("account_actions", [
           (0, import_types10.ButtonRow)("refresh_token_button", {
@@ -28505,12 +28464,6 @@ var source = (() => {
   function setTrackingContentRatings(ratings) {
     Application.setState(ratings, "tracking_content_ratings");
   }
-  function getSearchSortOrder() {
-    return Application.getState("search_sort_order") ?? "";
-  }
-  function setSearchSortOrder(order) {
-    Application.setState(order, "search_sort_order");
-  }
   function getRelevanceScoringEnabled() {
     return Application.getState("relevance_scoring_enabled") ?? true;
   }
@@ -28971,9 +28924,11 @@ var source = (() => {
     async getManagedLibraryCollections() {
       return [
         { id: "reading", title: "Reading" },
+        { id: "on_hold", title: "On Hold" },
         { id: "plan_to_read", title: "Planned" },
-        { id: "completed", title: "Completed" },
-        { id: "dropped", title: "Dropped" }
+        { id: "dropped", title: "Dropped" },
+        { id: "re_reading", title: "Re-reading" },
+        { id: "completed", title: "Completed" }
       ];
     }
     /**
@@ -29028,14 +28983,13 @@ var source = (() => {
         const batch = ids.slice(offset, offset + limit);
         const [_2, buffer2] = await Application.scheduleRequest({
           url: new import_types18.URL(MANGADEX_API).addPathComponent("manga").setQueryItems({
-            "includes[]": ["author", "artist", "cover_art"]
-          }).setQueryItems({
             "contentRating[]": [
               "safe",
               "suggestive",
               "erotica",
               "pornographic"
-            ]
+            ],
+            "includes[]": ["author", "artist", "cover_art"]
           }).setQueryItem("ids[]", batch).setQueryItem("limit", limit.toString()).toString(),
           method: "get"
         });
@@ -29067,6 +29021,62 @@ var source = (() => {
 
   // src/MangaDex/external/tag.json
   var tag_default = [
+    {
+      result: "ok",
+      data: {
+        id: "1",
+        type: "rating",
+        attributes: {
+          name: { en: "Safe" },
+          description: [],
+          group: "rating",
+          version: 1
+        }
+      },
+      relationships: []
+    },
+    {
+      result: "ok",
+      data: {
+        id: "2",
+        type: "rating",
+        attributes: {
+          name: { en: "Suggestive" },
+          description: [],
+          group: "rating",
+          version: 1
+        }
+      },
+      relationships: []
+    },
+    {
+      result: "ok",
+      data: {
+        id: "3",
+        type: "rating",
+        attributes: {
+          name: { en: "Erotica" },
+          description: [],
+          group: "rating",
+          version: 1
+        }
+      },
+      relationships: []
+    },
+    {
+      result: "ok",
+      data: {
+        id: "4",
+        type: "rating",
+        attributes: {
+          name: { en: "Pornographic" },
+          description: [],
+          group: "rating",
+          version: 1
+        }
+      },
+      relationships: []
+    },
     {
       result: "ok",
       data: {
@@ -30681,6 +30691,7 @@ var source = (() => {
      * Returns tag sections for manga search filters
      */
     getSearchTags() {
+      const ratings = getRatings();
       const sections = {};
       for (const tag of tag_default) {
         const group = tag.data.attributes.group;
@@ -30693,7 +30704,7 @@ var source = (() => {
         }
         const tagObject = {
           id: tag.data.id,
-          title: tag.data.attributes.name.en
+          title: tag.data.type === "rating" && !ratings.includes(tag.data.attributes.name.en.toLowerCase()) ? `${tag.data.attributes.name.en} (Blocked in settings)` : tag.data.attributes.name.en
         };
         sections[group].tags = [
           ...sections[group]?.tags ?? [],
@@ -30745,7 +30756,7 @@ var source = (() => {
     /**
      * Executes manga search with filters and returns results
      */
-    async getSearchResults(query, metadata) {
+    async getSearchResults(query, metadata, sortingOption) {
       const ratings = getRatings();
       const languages = getLanguages();
       const offset = metadata?.offset ?? 0;
@@ -30754,26 +30765,49 @@ var source = (() => {
         /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i
       ) ? "ids[]" : "title";
       const url = new import_types21.URL(MANGADEX_API).addPathComponent("manga").setQueryItem(searchType, query?.title?.replace(/ /g, "+") || "").setQueryItem("limit", "100").setQueryItem("hasAvailableChapters", "true").setQueryItem("availableTranslatedLanguage[]", languages).setQueryItem("offset", offset.toString()).setQueryItem("contentRating[]", ratings).setQueryItem("includes[]", "cover_art");
-      const sortOrder = getSearchSortOrder();
-      if (sortOrder) {
-        const [key, value] = sortOrder.split("-");
-        if (key && value) {
-          url.setQueryItem(key, value);
+      if (sortingOption && sortingOption.id) {
+        const index2 = sortingOption.id.lastIndexOf("-");
+        if (index2 > 0) {
+          const key = sortingOption.id.substring(0, index2);
+          const value = sortingOption.id.substring(index2 + 1);
+          if (key && value) {
+            url.setQueryItem(key, value);
+          }
         }
       }
       const includedTags = [];
       const excludedTags = [];
       for (const filter4 of query.filters) {
         if (filter4.id.startsWith("tags")) {
-          const tags = filter4.value ?? {};
-          for (const tag of Object.entries(tags)) {
-            switch (tag[1]) {
-              case "excluded":
-                excludedTags.push(tag[0]);
-                break;
-              case "included":
-                includedTags.push(tag[0]);
-                break;
+          if (filter4.id.includes("rating")) {
+            const tags = filter4.value ?? {};
+            const ratingMap = {
+              "1": "safe",
+              "2": "suggestive",
+              "3": "erotica",
+              "4": "pornographic"
+            };
+            for (const [id, status] of Object.entries(tags)) {
+              const rating = ratingMap[id];
+              if (!rating) continue;
+              const index2 = ratings.indexOf(rating);
+              if (status === "excluded" && index2 !== -1) {
+                ratings.splice(index2, 1);
+              } else if (status === "included" && index2 === -1) {
+                ratings.push(rating);
+              }
+            }
+          } else {
+            const tags = filter4.value ?? {};
+            for (const tag of Object.entries(tags)) {
+              switch (tag[1]) {
+                case "excluded":
+                  excludedTags.push(tag[0]);
+                  break;
+                case "included":
+                  includedTags.push(tag[0]);
+                  break;
+              }
             }
           }
         }
@@ -30803,6 +30837,23 @@ var source = (() => {
       results = await parseMangaList(json.data, getSearchThumbnail, query);
       const nextMetadata = results.length < 100 ? void 0 : { offset: offset + 100 };
       return { items: results, metadata: nextMetadata };
+    }
+    async getSortingOptions() {
+      return [
+        { id: "", label: "Latest Upload" },
+        { id: "order[relevance]-desc", label: "Best Match" },
+        { id: "order[latestUploadedChapter]-asc", label: "Oldest Upload" },
+        { id: "order[title]-asc", label: "Title Ascending" },
+        { id: "order[title]-desc", label: "Title Descending" },
+        { id: "order[rating]-desc", label: "Highest Rating" },
+        { id: "order[rating]-asc", label: "Lowest Rating" },
+        { id: "order[followedCount]-desc", label: "Most Follows" },
+        { id: "order[followedCount]-asc", label: "Least Follows" },
+        { id: "order[createdAt]-desc", label: "Recently Added" },
+        { id: "order[createdAt]-asc", label: "Oldest Added" },
+        { id: "order[year]-asc", label: "Year Ascending" },
+        { id: "order[year]-desc", label: "Year Descending" }
+      ];
     }
   };
 
@@ -30946,11 +30997,18 @@ var source = (() => {
     async getSearchFilters() {
       return this.searchProvider.getSearchFilters();
     }
-    async getSearchResults(query, metadata) {
-      return this.searchProvider.getSearchResults(query, metadata);
+    async getSearchResults(query, metadata, sortingOption) {
+      return this.searchProvider.getSearchResults(
+        query,
+        metadata,
+        sortingOption
+      );
     }
     getSearchTags() {
       return this.searchProvider.getSearchTags();
+    }
+    async getSortingOptions() {
+      return this.searchProvider.getSortingOptions();
     }
     // ChapterProviding implementation
     async getChapters(sourceManga) {
