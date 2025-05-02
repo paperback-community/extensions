@@ -2155,7 +2155,7 @@ var source = (() => {
         promise;
         currentRequestsMade = 0;
         lastReset = Date.now();
-        imageRegex = new RegExp(/\.(png|gif|jpeg|jpg|webp)(\?|$)/gi);
+        imageRegex = new RegExp(/\.(png|gif|jpeg|jpg|webp)(\?|$)/i);
         constructor(id, options) {
           super(id);
           this.options = options;
@@ -21618,7 +21618,10 @@ var source = (() => {
         "#content > div.cont_box > div.detail_header > div.info"
       );
       const infoElement = $2("#_asideDetail");
-      const [image, title] = mangaId.startsWith("canvas") ? [
+      const isCanvas = mangaId.startsWith(
+        this.languageFromId(mangaId) + "/canvas"
+      );
+      const [image, title] = isCanvas ? [
         this.parseCanvasDetailsThumbnail($2),
         detailElement.find("h3").text().trim()
       ] : [
@@ -21632,7 +21635,7 @@ var source = (() => {
           synopsis: infoElement.find("p.summary").text(),
           primaryTitle: title,
           secondaryTitles: [],
-          contentRating: mangaId.startsWith("canvas") ? import_types3.ContentRating.MATURE : import_types3.ContentRating.EVERYONE,
+          contentRating: isCanvas ? import_types3.ContentRating.MATURE : import_types3.ContentRating.EVERYONE,
           status: this.parseStatus(infoElement),
           artist: "",
           author: detailElement.find(".author_area").text().trim(),
@@ -21641,7 +21644,7 @@ var source = (() => {
               id: "0",
               title: "genres",
               tags: detailElement.find(".genre").toArray().map((genre) => ({
-                id: $2(genre).text().replace(" ", "-"),
+                id: $2(genre).text().replaceAll(" ", "-"),
                 title: $2(genre).text()
               }))
             }
@@ -21794,7 +21797,7 @@ var source = (() => {
     }
     parseCanvasTagFromElement(elem) {
       return {
-        id: "CANVAS$$" + (elem.attr("data-genre") ?? ""),
+        id: "CANVAS%%" + (elem.attr("data-genre") ?? ""),
         value: "Canvas - " + elem.find("a").text().trim()
       };
     }
@@ -21974,10 +21977,10 @@ var source = (() => {
       const result = [];
       this.languages.forEach((language) => {
         result.push(
-          genre !== "ALL" ? genre.startsWith("CANVAS$$") ? this.getCanvasPopularTitles(
+          genre !== "ALL" ? genre.startsWith("CANVAS%%") ? this.getCanvasPopularTitles(
             language,
             metadata,
-            genre.split("$$")[1]
+            genre.split("%%")[1]
           ) : this.getTitlesByGenre(language, genre) : query.title ? this.getTitlesByKeyword(language, query.title, metadata) : Promise.resolve({ items: [] })
         );
       });
