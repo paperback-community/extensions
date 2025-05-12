@@ -1,5 +1,5 @@
 {
-  "buildTime": "2025-05-02T15:20:21.125Z",
+  "buildTime": "2025-05-12T00:38:49.454Z",
   "builtWith": {
     "toolchain": "1.0.0-alpha.47",
     "types": "1.0.0-alpha.47"
@@ -1098,28 +1098,6 @@
       "contentRating": "SAFE",
       "badges": [],
       "capabilities": 117,
-      "developers": [
-        {
-          "name": "nyzzik",
-          "website": null,
-          "github": "https://github.com/nyzzik"
-        }
-      ]
-    },
-    {
-      "id": "ReaperScans",
-      "name": "ReaperScans",
-      "description": "Extension that pulls content from reaperscans.com.",
-      "version": "1.0.0-alpha.2",
-      "icon": "icon.png",
-      "language": "en",
-      "contentRating": "SAFE",
-      "badges": [],
-      "capabilities": [
-        1,
-        4,
-        64
-      ],
       "developers": [
         {
           "name": "nyzzik",
