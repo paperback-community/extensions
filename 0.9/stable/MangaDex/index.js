@@ -11013,7 +11013,7 @@ var source = (() => {
           }),
           (0, import_types.ToggleRow)("crop_images", {
             title: "Enable Image Cropping",
-            subtitle: "Automatically removes whitespace borders from images. Will noticeably increase loading time. Works best with Data Saver enabled.",
+            subtitle: "Automatically removes whitespace borders from images. Will noticeably increase loading time. Works best with Data Saver enabled",
             value: this.cropImagesState.value,
             onValueChange: this.cropImagesState.selector
           })
@@ -12178,7 +12178,7 @@ var source = (() => {
     erotica: "\u{1F7E0}",
     pornographic: "\u{1F51E}"
   };
-  var parseMangaList = async (object, thumbnailSelector, query) => {
+  var parseMangaList = async (object, thumbnailSelector, query, ratingJson, chapterDetailsMap) => {
     const results = [];
     const thumbnailQuality = thumbnailSelector();
     const useCustomCovers = getCustomCoversEnabled();
@@ -12206,12 +12206,26 @@ var source = (() => {
       const showRatingIcons = getShowRatingIcons();
       const statusIcon = showStatusIcons ? statusIconMap[mangaDetails.status.toLowerCase()] || "" : "";
       const ratingIcon = showRatingIcons ? ratingIconMap[mangaDetails.contentRating.toLowerCase()] || "" : "";
+      let chapterVolume = mangaDetails.lastVolume;
+      let chapterNumber = mangaDetails.lastChapter;
+      if (chapterDetailsMap && manga.attributes.latestUploadedChapter) {
+        const latestChapterDetails = chapterDetailsMap[manga.attributes.latestUploadedChapter];
+        if (latestChapterDetails) {
+          chapterVolume = latestChapterDetails.volume ?? void 0;
+          chapterNumber = latestChapterDetails.chapter ?? void 0;
+        }
+      }
       const chapterInfo = parseChapterTitle({
         title: void 0,
-        volume: mangaDetails.lastVolume,
-        chapter: mangaDetails.lastChapter
+        volume: chapterVolume,
+        chapter: chapterNumber
       });
-      const subtitle = `${ratingIcon}${statusIcon}${statusIcon || ratingIcon ? " " : ""}${chapterInfo}`.trim();
+      const rating = ratingJson?.statistics?.[mangaId]?.rating?.average ? (ratingJson.statistics[mangaId].rating.average * 10).toFixed(0) + "%" : "";
+      const subtitle = `${ratingIcon}${statusIcon}${rating}${statusIcon || ratingIcon || rating ? " " : ""}${chapterInfo}`.trim();
+      let displayTitle = title;
+      if (getShowChapter() || getShowVolume() || getShowRatingIcons() || getShowSearchRatingInSubtitle() || getShowStatusIcons() || title.length > 0 && title.length < 35) {
+        displayTitle += " ".repeat(30) + " \u200D";
+      }
       let relevance = 0;
       if (query?.title && getRelevanceScoringEnabled()) {
         relevance = relevanceScore(title, query.title);
@@ -12229,9 +12243,10 @@ var source = (() => {
         manga: {
           ...manga,
           mangaId,
-          title,
+          title: displayTitle,
           imageUrl: image,
-          subtitle
+          subtitle,
+          contentRating: contentRatingMap[mangaDetails.contentRating?.toLowerCase() ?? ""] ?? import_types4.ContentRating.EVERYONE
         },
         relevance
       });
@@ -12243,17 +12258,7 @@ var source = (() => {
   };
   var parseMangaDetails = (mangaId, json, ratingJson, coversJson) => {
     const mangaDetails = json.data.attributes;
-    const secondaryTitles = mangaDetails.altTitles.flatMap((x) => Object.values(x)).map((x) => Application.decodeHTMLEntities(x));
-    const primaryTitle = mangaDetails.title.en ?? Object.values(mangaDetails.title)[0];
-    const desc = (mangaDetails.description.en ?? "")?.replace(
-      /\[\/?[bus]]/g,
-      ""
-    );
-    const status = mangaDetails.status;
-    const tags = mangaDetails.tags.map((tag) => ({
-      id: tag.id,
-      title: tag.attributes.name.en ?? "Unknown"
-    })).sort((a, b) => a.title.localeCompare(b.title));
+    const mangaItemDetails = parseMangaItemDetails(mangaId, mangaDetails);
     const author = json.data.relationships.filter(
       (x) => x.type.valueOf() === "author"
     ).map((x) => x.attributes?.name).filter(Boolean).join(", ");
@@ -12287,27 +12292,57 @@ var source = (() => {
     return {
       mangaId,
       mangaInfo: {
-        primaryTitle,
-        secondaryTitles,
+        primaryTitle: mangaItemDetails.primaryTitle,
+        secondaryTitles: mangaItemDetails.secondaryTitles,
         thumbnailUrl: image,
         author,
         artist,
-        synopsis: desc ?? "No Description",
-        status,
-        tagGroups: [{ id: "tags", title: "Tags", tags }],
-        contentRating: contentRatingMap[mangaDetails.contentRating?.toLowerCase() ?? ""] ?? import_types4.ContentRating.EVERYONE,
-        shareUrl: `${MANGADEX_DOMAIN}/title/${mangaId}`,
+        synopsis: mangaItemDetails.synopsis ?? "No Description",
+        status: mangaItemDetails.status,
+        tagGroups: mangaItemDetails.tagGroups,
+        contentRating: mangaItemDetails.contentRating,
+        shareUrl: mangaItemDetails.shareUrl,
         rating,
         artworkUrls: artworkUrls.length > 0 ? artworkUrls : void 0
       }
     };
   };
+  function parseMangaItemDetails(mangaId, mangaDetails) {
+    const primaryTitle = mangaDetails.title.en ?? Object.values(mangaDetails.title)[0];
+    const secondaryTitles = mangaDetails.altTitles.flatMap(
+      (x) => Object.values(x)
+    );
+    const desc = (mangaDetails.description.en ?? "")?.replace(
+      /\[\/?[bus]]/g,
+      ""
+    );
+    const status = mangaDetails.status;
+    const tags = mangaDetails.tags.map((tag) => ({
+      id: tag.id,
+      title: tag.attributes.name.en ?? "Unknown"
+    })).sort((a, b) => a.title.localeCompare(b.title));
+    return {
+      primaryTitle,
+      secondaryTitles,
+      synopsis: desc,
+      status,
+      tagGroups: [{ id: "tags", title: "Tags", tags }],
+      contentRating: contentRatingMap[mangaDetails.contentRating?.toLowerCase() ?? ""] ?? import_types4.ContentRating.EVERYONE,
+      shareUrl: `${MANGADEX_DOMAIN}/title/${mangaId}`
+    };
+  }
   function parseChapterTitle(attributes2) {
     const title = attributes2.title?.trim() || "";
     const showVolume = getShowVolume();
     const showChapter = getShowChapter();
-    const volume = showVolume && attributes2.volume ? `Vol. ${attributes2.volume} ` : "";
-    const chapter = showChapter && attributes2.chapter ? `Ch. ${attributes2.chapter}` : "";
+    let volumePrefix = "Vol.";
+    let chapterPrefix = "Ch.";
+    if (getShowSearchRatingInSubtitle()) {
+      volumePrefix = "V.";
+      chapterPrefix = "C.";
+    }
+    const volume = showVolume && attributes2.volume ? `${volumePrefix} ${attributes2.volume} ` : "";
+    const chapter = showChapter && attributes2.chapter ? `${chapterPrefix} ${attributes2.chapter}` : "";
     return `${volume}${chapter}${title ? ` - ${title}` : ""}`.trim();
   }
 
@@ -12325,8 +12360,14 @@ var source = (() => {
     async getChapters(sourceManga, skipMetadataUpdate = false) {
       const mangaId = sourceManga.mangaId;
       checkId(mangaId);
+      if (!sourceManga.mangaInfo) {
+        sourceManga.mangaInfo = {};
+      }
+      if (!sourceManga.mangaInfo.additionalInfo) {
+        sourceManga.mangaInfo.additionalInfo = {};
+      }
       const metadataUpdaterEnabled = !skipMetadataUpdate && getMetadataUpdater();
-      if (metadataUpdaterEnabled || !sourceManga.mangaInfo || !sourceManga.mangaInfo.status || !sourceManga.mangaInfo.rating) {
+      if (metadataUpdaterEnabled || !sourceManga.mangaInfo || !sourceManga.mangaInfo.status || !sourceManga.mangaInfo.rating || !sourceManga.mangaInfo.shareUrl) {
         const updatedManga = await this.mangaProvider.getMangaDetails(mangaId);
         sourceManga.mangaInfo = updatedManga.mangaInfo;
       }
@@ -12388,6 +12429,28 @@ var source = (() => {
               if (chapterIdFromFeed && latestChapterIdOnManga && chapterIdFromFeed === latestChapterIdOnManga) {
                 verifiedLatestChapterId = chapterIdFromFeed;
                 break;
+              }
+            }
+          }
+          if (skipMetadataUpdate || !getMetadataUpdater()) {
+            if (unfilteredJson.data && unfilteredJson.data.length > 0) {
+              const chapterData = unfilteredJson.data[0];
+              const mangaItem = chapterData.relationships?.find(
+                (rel) => rel.type === "manga"
+              );
+              if (mangaItem?.attributes && mangaItem.id) {
+                const mangaDetails = mangaItem.attributes;
+                const mangaItemDetails = parseMangaItemDetails(
+                  mangaId,
+                  mangaDetails
+                );
+                sourceManga.mangaInfo.primaryTitle = mangaItemDetails.primaryTitle;
+                sourceManga.mangaInfo.secondaryTitles = mangaItemDetails.secondaryTitles;
+                sourceManga.mangaInfo.synopsis = mangaItemDetails.synopsis ?? "No Description";
+                sourceManga.mangaInfo.status = mangaDetails.status;
+                sourceManga.mangaInfo.tagGroups = mangaItemDetails.tagGroups;
+                sourceManga.mangaInfo.contentRating = mangaItemDetails.contentRating;
+                sourceManga.mangaInfo.shareUrl = mangaItemDetails.shareUrl;
               }
             }
           }
@@ -12494,17 +12557,19 @@ var source = (() => {
         }
       }
       if (chapters.length === 0) {
+        const langStr = languages.join(", ");
+        const ratingStr = ratings.join(", ");
         if (totalChaptersFetched > 0 && hasExternalChapters) {
           throw new Error(
             `Chapters are hosted externally outside MangaDex, you'll need to use another source or read it online`
           );
         } else if (totalChaptersFetched > 0) {
           throw new Error(
-            `Couldn't find any chapters matching your selected language(s). Chapters in other languages might exist`
+            `No chapters found matching your selected language(s) [${langStr}]. Chapters in other languages might exist`
           );
         } else {
           throw new Error(
-            `No chapters were found from the MangaDex API. This manga likely has no chapters in your selected language(s)`
+            `No chapters found. This manga has no chapters in your selected language(s) [${langStr}] or content ratings [${ratingStr}]`
           );
         }
       }
@@ -12580,6 +12645,43 @@ var source = (() => {
               if (!sourceManga2) continue;
               const latestApiChapter = mangaData.attributes.latestUploadedChapter;
               const latestStoredChapter = sourceManga2.mangaInfo?.additionalInfo?.latestUploadedChapter;
+              let metadataHasChanged = false;
+              if (sourceManga2.mangaInfo) {
+                const apiMangaDetails = parseMangaItemDetails(
+                  mangaData.id,
+                  mangaData.attributes
+                );
+                const storedMangaInfo = sourceManga2.mangaInfo;
+                if (storedMangaInfo.primaryTitle !== apiMangaDetails.primaryTitle) {
+                  metadataHasChanged = true;
+                }
+                const storedSecondaryTitle = [
+                  ...storedMangaInfo.secondaryTitles ?? []
+                ].sort().join(",");
+                const apiSecondaryTitle = [
+                  ...apiMangaDetails.secondaryTitles ?? []
+                ].sort().join(",");
+                if (storedSecondaryTitle !== apiSecondaryTitle) {
+                  metadataHasChanged = true;
+                }
+                if ((storedMangaInfo.synopsis ?? "") !== apiMangaDetails.synopsis) {
+                  metadataHasChanged = true;
+                }
+                if (storedMangaInfo.status !== apiMangaDetails.status) {
+                  metadataHasChanged = true;
+                }
+                if (storedMangaInfo.contentRating !== apiMangaDetails.contentRating) {
+                  metadataHasChanged = true;
+                }
+                const storedTagIds = (storedMangaInfo.tagGroups ? storedMangaInfo.tagGroups[0]?.tags ?? [] : []).map((t) => t.id).sort().join(",");
+                const apiTagIds = (apiMangaDetails.tagGroups[0]?.tags ?? []).map((t) => t.id).sort().join(",");
+                if (storedTagIds !== apiTagIds) {
+                  metadataHasChanged = true;
+                }
+                if ((storedMangaInfo.shareUrl ?? "") !== apiMangaDetails.shareUrl) {
+                  metadataHasChanged = true;
+                }
+              }
               let skipUnread = false;
               if (skipUnreadChapters > 0 && sourceManga2.unreadChapterCount !== void 0 && sourceManga2.chapterCount) {
                 if (skipUnreadChapters === 1) {
@@ -12598,7 +12700,9 @@ var source = (() => {
                   skipNew = newPercentage >= skipNewChapters;
                 }
               }
-              if (latestApiChapter && latestApiChapter !== latestStoredChapter && !skipPublicationStatus.includes(
+              const chapterChanged = latestApiChapter && latestApiChapter !== latestStoredChapter;
+              const shouldUpdateBasedOnContent = chapterChanged || metadataHasChanged;
+              if (shouldUpdateBasedOnContent && !skipPublicationStatus.includes(
                 mangaData.attributes.status
               ) && !skipUnread && !skipNew) {
                 needsUpdate.push(mangaData.id);
@@ -13470,12 +13574,12 @@ var source = (() => {
           try {
             const json = await fetchJSON(request);
             if (json.data) {
-              const statsRequest = {
+              const ratingRequest = {
                 url: new import_types8.URL(MANGADEX_API).addPathComponent("statistics").addPathComponent("manga").setQueryItem("manga[]", batchIds).toString(),
                 method: "GET"
               };
-              const statsJson = await fetchJSON(
-                statsRequest
+              const ratingJson = await fetchJSON(
+                ratingRequest
               );
               try {
                 const ratingUrl = new import_types8.URL(MANGADEX_API).addPathComponent("rating").setQueryItem("manga[]", batchIds).toString();
@@ -13508,7 +13612,7 @@ var source = (() => {
                     const sourceManga = parseMangaDetails(
                       mangaData.id,
                       mangaDetailsResponse,
-                      statsJson
+                      ratingJson
                     );
                     this.libraryManga[index2].sourceManga = sourceManga;
                   } catch (error) {
@@ -13581,6 +13685,11 @@ var source = (() => {
       "relevance_scoring_enabled",
       getRelevanceScoringEnabled()
     );
+    showSearchRatingSubtitleState = new State(
+      this,
+      "show_search_rating_subtitle",
+      getShowSearchRatingInSubtitle()
+    );
     getSections() {
       return [
         (0, import_types9.Section)("sorting", [
@@ -13597,7 +13706,7 @@ var source = (() => {
         (0, import_types9.Section)("subtitle_content", [
           (0, import_types9.ToggleRow)("show_volume_in_subtitle", {
             title: "Show Volume in Subtitle",
-            subtitle: "Note: Not all manga have volumes in the search API",
+            subtitle: "This may not be accurate for your language due to API",
             value: this.volumeState.value,
             onValueChange: Application.Selector(
               this,
@@ -13606,11 +13715,20 @@ var source = (() => {
           }),
           (0, import_types9.ToggleRow)("show_chapter_in_subtitle", {
             title: "Show Chapter in Subtitle",
-            subtitle: "Note: Not all manga have chapters in the search API",
+            subtitle: "This may not be accurate for your language due to API",
             value: this.chapterState.value,
             onValueChange: Application.Selector(
               this,
               "handleChapterChange"
+            )
+          }),
+          (0, import_types9.ToggleRow)("show_search_rating_subtitle", {
+            title: "Show Rating in Subtitle",
+            subtitle: "Displays the manga's average rating. Increases loading time by a few seconds",
+            value: this.showSearchRatingSubtitleState.value,
+            onValueChange: Application.Selector(
+              this,
+              "handleShowSearchRatingSubtitleChange"
             )
           })
         ]),
@@ -13660,6 +13778,11 @@ var source = (() => {
     async handleRelevanceScoringChange(value) {
       await this.relevanceScoringState.updateValue(value);
       setRelevanceScoringEnabled(value);
+      this.reloadForm();
+    }
+    async handleShowSearchRatingSubtitleChange(value) {
+      await this.showSearchRatingSubtitleState.updateValue(value);
+      setShowSearchRatingInSubtitle(value);
       this.reloadForm();
     }
   };
@@ -13819,7 +13942,7 @@ var source = (() => {
             }),
             (0, import_types11.ToggleRow)("chapter_preloading_enabled", {
               title: "Enable Chapter Preloading",
-              subtitle: "Preload chapter data when viewing manga progress. Disable to improve performance.",
+              subtitle: "Preload chapter data when viewing manga progress. Disable to load faster",
               value: this.chapterPreloadingEnabledState.value,
               onValueChange: Application.Selector(
                 this,
@@ -13920,7 +14043,7 @@ var source = (() => {
           [
             (0, import_types12.ToggleRow)("optimize_updates", {
               title: "Enable Optimized Updates",
-              subtitle: "Only update manga with new chapters. First update will be slow, subsequent updates will be optimized",
+              subtitle: "Highly recommended for library updates. Batch check for manga with new chapters or metadata and only update those. May miss nuked chapters (dmcad manga).",
               value: this.optimizeUpdatesState.value,
               onValueChange: Application.Selector(
                 this,
@@ -13929,7 +14052,7 @@ var source = (() => {
             }),
             (0, import_types12.ToggleRow)("metadata_updater", {
               title: "Enable Forced Metadata Updater",
-              subtitle: "Manga description, cover, title, author, and statuses are forcefully updated during chapter updates (opening manga/library updates)",
+              subtitle: "Manga details are forcefully updated during chapter updates (opening manga/library updates)",
               value: this.metadataUpdaterState.value,
               onValueChange: Application.Selector(
                 this,
@@ -28386,6 +28509,12 @@ var source = (() => {
   function setShowChapter(enabled) {
     Application.setState(enabled, "show_chapter_in_subtitle");
   }
+  function getShowSearchRatingInSubtitle() {
+    return Application.getState("show_search_rating_subtitle") ?? false;
+  }
+  function setShowSearchRatingInSubtitle(enabled) {
+    Application.setState(enabled, "show_search_rating_subtitle");
+  }
   function getBlockedGroups() {
     return Application.getState("blocked_groups") ?? {};
   }
@@ -28938,21 +29067,25 @@ var source = (() => {
       if (!getAccessToken()) {
         throw new Error("You need to be logged in");
       }
-      for (const addition of changeset.additions) {
-        await Application.scheduleRequest({
-          url: new import_types18.URL(MANGADEX_API).addPathComponent("manga").addPathComponent(addition.mangaId).addPathComponent("status").toString(),
-          method: "post",
-          headers: { "Content-Type": "application/json" },
-          body: { status: changeset.collection.id }
-        });
+      if (changeset.additions && changeset.additions.length > 0) {
+        for (const addition of changeset.additions) {
+          await Application.scheduleRequest({
+            url: new import_types18.URL(MANGADEX_API).addPathComponent("manga").addPathComponent(addition.mangaId).addPathComponent("status").toString(),
+            method: "post",
+            headers: { "Content-Type": "application/json" },
+            body: { status: changeset.collection.id }
+          });
+        }
       }
-      for (const deletion of changeset.deletions) {
-        await Application.scheduleRequest({
-          url: new import_types18.URL(MANGADEX_API).addPathComponent("manga").addPathComponent(deletion.mangaId).addPathComponent("status").toString(),
-          method: "post",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: null })
-        });
+      if (changeset.deletions && changeset.deletions.length > 0) {
+        for (const deletion of changeset.deletions) {
+          await Application.scheduleRequest({
+            url: new import_types18.URL(MANGADEX_API).addPathComponent("manga").addPathComponent(deletion.mangaId).addPathComponent("status").toString(),
+            method: "post",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: null })
+          });
+        }
       }
     }
     /**
@@ -29029,7 +29162,7 @@ var source = (() => {
         attributes: {
           name: { en: "Safe" },
           description: [],
-          group: "rating",
+          group: "content_rating",
           version: 1
         }
       },
@@ -29043,7 +29176,7 @@ var source = (() => {
         attributes: {
           name: { en: "Suggestive" },
           description: [],
-          group: "rating",
+          group: "content_rating",
           version: 1
         }
       },
@@ -29057,7 +29190,7 @@ var source = (() => {
         attributes: {
           name: { en: "Erotica" },
           description: [],
-          group: "rating",
+          group: "content_rating",
           version: 1
         }
       },
@@ -29071,7 +29204,7 @@ var source = (() => {
         attributes: {
           name: { en: "Pornographic" },
           description: [],
-          group: "rating",
+          group: "content_rating",
           version: 1
         }
       },
@@ -30331,7 +30464,8 @@ var source = (() => {
           mangaId: x.mangaId,
           title: x.title,
           supertitle: void 0,
-          metadata: void 0
+          metadata: void 0,
+          contentRating: x.contentRating
         })),
         metadata: void 0
       };
@@ -30407,6 +30541,7 @@ var source = (() => {
           publishDate: new Date(
             chapterIdToChapter[x.attributes.latestUploadedChapter]?.attributes.readableAt
           ),
+          contentRating: x.contentRating,
           type: "chapterUpdatesCarouselItem"
         })),
         metadata: nextMetadata
@@ -30745,7 +30880,7 @@ var source = (() => {
           options: tag.tags.map((x) => ({ id: x.id, value: x.title })),
           id: "tags-" + tag.id,
           allowExclusion: true,
-          title: tag.title,
+          title: tag.title.replace(/_/g, " "),
           value: {},
           allowEmptySelection: true,
           maximum: void 0
@@ -30833,8 +30968,47 @@ var source = (() => {
         throw new Error(
           `Failed to create search results, check MangaDex status and your search query`
         );
+      } else if (json.data.length === 0 && offset === 0) {
+        const langStr = languages.join(", ");
+        const ratingStr = ratings.join(", ");
+        throw new Error(
+          `No results found. If it exists, check your language and content rating filters in the MangaDex extension settings
+Enabled Languages: ${langStr}
+Enabled Ratings: ${ratingStr}`
+        );
       }
-      results = await parseMangaList(json.data, getSearchThumbnail, query);
+      let ratingJson = void 0;
+      if (getShowSearchRatingInSubtitle() && json.data && json.data.length > 0) {
+        const mangaIds = json.data.map((manga) => manga.id);
+        const ratingRequest = {
+          url: new import_types21.URL(MANGADEX_API).addPathComponent("statistics").addPathComponent("manga").setQueryItem("manga[]", mangaIds).toString(),
+          method: "GET"
+        };
+        ratingJson = await fetchJSON(ratingRequest);
+      }
+      const chapterDetailsMap = {};
+      const chapterIds = json.data.map((manga) => manga.attributes.latestUploadedChapter).filter((id) => !!id);
+      if ((getShowVolume() || getShowChapter()) && chapterIds.length > 0) {
+        const chapterDetailsRequest = {
+          url: new import_types21.URL(MANGADEX_API).addPathComponent("chapter").setQueryItem("ids[]", chapterIds).setQueryItem("limit", chapterIds.length.toString()).toString(),
+          method: "GET"
+        };
+        const chaptersResponse = await fetchJSON(
+          chapterDetailsRequest
+        );
+        if (chaptersResponse.data) {
+          for (const chapter of chaptersResponse.data) {
+            chapterDetailsMap[chapter.id] = chapter.attributes;
+          }
+        }
+      }
+      results = await parseMangaList(
+        json.data,
+        getSearchThumbnail,
+        query,
+        ratingJson,
+        chapterDetailsMap
+      );
       const nextMetadata = results.length < 100 ? void 0 : { offset: offset + 100 };
       return { items: results, metadata: nextMetadata };
     }
@@ -30967,7 +31141,7 @@ var source = (() => {
   var MangaDexExtension = class {
     // Rate limiting and request interception
     globalRateLimiter = new BasicRateLimiter("rateLimiter", {
-      numberOfRequests: 4,
+      numberOfRequests: 5,
       bufferInterval: 1,
       ignoreImages: true
     });

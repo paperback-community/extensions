@@ -1,5 +1,5 @@
 {
-  "buildTime": "2025-05-12T00:38:49.454Z",
+  "buildTime": "2025-05-17T15:46:22.127Z",
   "builtWith": {
     "toolchain": "1.0.0-alpha.47",
     "types": "1.0.0-alpha.47"
@@ -580,7 +580,7 @@
       "id": "MangaDex",
       "name": "MangaDex",
       "description": "Extension that pulls content from mangadex.org.",
-      "version": "1.0.0-alpha.15",
+      "version": "1.0.0-alpha.16",
       "icon": "icon.png",
       "language": null,
       "contentRating": "SAFE",
